@@ -1,0 +1,30 @@
+# Scala
+*.class
+*.log
+
+# sbt
+lib_managed/
+project/boot/
+project/plugins/project/
+target/
+tmp/
+
+# Bloop
+.bloop/
+
+# Metals
+.metals/
+.vscode/
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+.bsp/
+
+.scala-build/
