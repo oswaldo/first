@@ -28,10 +28,11 @@ Development must be guided by a clear, high-level vision document that precedes 
 - **Atomic Features**: Each feature should be developed on a dedicated branch and result in a single, comprehensive commit upon completion.
 - **Linear History**: To maintain a clean and readable revision history, feature branches MUST be rebased onto the main branch before merging. Merge commits are to be avoided in favor of fast-forward merges.
 - **Roadmap Tracking**: After a feature branch is merged, the `SPEC-ROADMAP.md` file must be updated to mark the corresponding feature as complete.
+- **Specification Gating**: Before implementation can begin, the feature's `requirements.md` checklist MUST be reviewed and marked as complete. This serves as the formal quality gate after the clarification step.
 
 ## Governance
 This constitution is the supreme governing document for the `first` project. All development practices, tools, and contributions must align with its principles. Amendments to this constitution require a formal proposal, review, and a clear migration plan for any affected components.
 
 All pull requests and code reviews must include a check for compliance with this constitution. Any deviation from these principles must be explicitly justified and approved.
 
-**Version**: 1.3.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-10-31
+**Version**: 1.4.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-10-31
