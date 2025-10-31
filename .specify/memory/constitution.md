@@ -1,16 +1,3 @@
-<!--
-Sync Impact Report
-
-- Version change: 1.0.0 -> 1.1.0
-- Added sections:
-  - Technical Constraints
-- Templates requiring updates:
-  - ⚠ pending: .specify/templates/plan-template.md (No changes needed at this time)
-  - ⚠ pending: .specify/templates/spec-template.md (No changes needed at this time)
-  - ⚠ pending: .specify/templates/tasks-template.md (No changes needed at this time)
-- Follow-up TODOs:
-  - TODO(SECTIONS): Define content for [SECTION_3_NAME] in the constitution.
--->
 # first Constitution
 <!-- This constitution outlines the guiding principles and governance for the 'first' project. -->
 
@@ -36,15 +23,14 @@ Development must be guided by a clear, high-level vision document that precedes 
 - **Initial Implementation**: The initial implementation of the `first` command-line tool must be a Scala CLI script that can be compiled to a native executable using Scala Native. This ensures a lightweight, fast-starting tool that is easy to distribute.
 - **Distribution**: The project must eventually be packaged and published in a way that allows for installation via the `cs install first` command using Coursier.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- **Atomic Features**: Each feature should be developed on a dedicated branch and result in a single, comprehensive commit upon completion.
+- **Linear History**: To maintain a clean and readable revision history, feature branches MUST be rebased onto the main branch before merging. Merge commits are to be avoided in favor of fast-forward merges.
 
 ## Governance
 This constitution is the supreme governing document for the `first` project. All development practices, tools, and contributions must align with its principles. Amendments to this constitution require a formal proposal, review, and a clear migration plan for any affected components.
 
 All pull requests and code reviews must include a check for compliance with this constitution. Any deviation from these principles must be explicitly justified and approved.
 
-**Version**: 1.1.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-10-30
+**Version**: 1.2.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-10-31
