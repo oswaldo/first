@@ -28,3 +28,4 @@ Thumbs.db
 .bsp/
 
 .scala-build/
+tmp/
