@@ -1,11 +1,15 @@
 package first.config
 
-import org.ekrich.config.{Config, ConfigFactory}
-import java.nio.file.{Files, Path, Paths}
-import scala.util.Try
-import scala.jdk.CollectionConverters.*
+import cats.implicits._
+import org.ekrich.config.Config
+import org.ekrich.config.ConfigFactory
+
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import scala.annotation.tailrec
-import cats.implicits.*
+import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 class ConfigReader:
 
@@ -55,7 +59,7 @@ class ConfigReader:
         )
       }
       FctxDef(name, includes, artifacts, config)
-    }.toEither.left.map {
+    }.toEither.left.map:
       case e: org.ekrich.config.ConfigException =>
         FileParseError(
           e.origin.description.split(":").head,
@@ -63,7 +67,6 @@ class ConfigReader:
         )
       case e =>
         FileParseError(name, s"Error mapping config to FctxDef: ${e.getMessage}")
-    }
 
   private def loadConfigRecursive(
       contextName: String,
@@ -148,3 +151,47 @@ class ConfigReader:
       else pathsFromRoot
 
     allPaths.distinct
+
+  def listAvailableContextsWithPaths(startPath: Path): Map[String, List[Path]] =
+    @tailrec
+    def discoverContextsIn(path: Path, acc: Map[String, List[Path]]): Map[String, List[Path]] =
+      if path == null || !Files.isDirectory(path) then acc
+      else
+        val thenDir = path.resolve(".then")
+        val contexts =
+          if Files.isDirectory(thenDir) then
+            Files
+              .list(thenDir)
+              .iterator()
+              .asScala
+              .filter(Files.isDirectory(_))
+              .map(p => p.getFileName.toString -> List(p.resolve("fctx-def.conf")))
+              .toMap
+          else Map.empty[String, List[Path]]
+
+        val merged = contexts.foldLeft(acc) { case (acc, (ctx, paths)) =>
+          acc.updated(ctx, acc.getOrElse(ctx, Nil) ++ paths)
+        }
+
+        discoverContextsIn(path.getParent, merged)
+
+    val contextsFromRoot = discoverContextsIn(startPath, Map.empty)
+
+    val userHome         = Paths.get(System.getProperty("user.home"))
+    val userHomeFirstDir = userHome.resolve(".first")
+    val userHomeContexts =
+      if Files.isDirectory(userHomeFirstDir) then
+        Files
+          .list(userHomeFirstDir)
+          .iterator()
+          .asScala
+          .filter(Files.isDirectory(_))
+          .map(p => p.getFileName.toString -> List(p.resolve("fctx-def.conf")))
+          .toMap
+      else Map.empty[String, List[Path]]
+
+    val allContexts = userHomeContexts.foldLeft(contextsFromRoot) { case (acc, (ctx, paths)) =>
+      acc.updated(ctx, acc.getOrElse(ctx, Nil) ++ paths)
+    }
+
+    allContexts.map { case (ctx, paths) => ctx -> paths.filter(Files.exists(_)) }.filter(_._2.nonEmpty)

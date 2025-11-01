@@ -1,19 +1,23 @@
-import first.config.{CircularDependency, ConfigReader, FileParseError}
+import first.config.CircularDependency
+import first.config.ConfigReader
+import first.config.FileParseError
 import munit.FunSuite
 
-import java.nio.file.{Files, Path, Paths}
-import scala.jdk.CollectionConverters.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import scala.jdk.CollectionConverters._
 
 class ConfigReaderTests extends FunSuite:
 
-  val reader = new ConfigReader()
+  val reader: ConfigReader = new ConfigReader()
 
   override def beforeAll(): Unit =
     // Create a temporary directory for config files
     val tempDir = Files.createTempDirectory("fctx-test")
     sys.props += "fctx.test.tmpdir" -> tempDir.toString
 
-    val absoluteDir = Files.createDirectory(tempDir.resolve("absolute"))
+    val absoluteDir   = Files.createDirectory(tempDir.resolve("absolute"))
     val absoluteFile2 = absoluteDir.resolve("file2.txt")
     Files.createFile(absoluteFile2)
 
@@ -135,8 +139,8 @@ class ConfigReaderTests extends FunSuite:
     assertEquals(fctxDef.config.getIntList("list").asScala.map(_.toInt).toList, List(3, 4))
     assertEquals(fctxDef.config.getString("newKey"), "added")
 
-    Files.delete(globalConfigPath)
-    Files.delete(localConfigPath)
+    deleteDir(globalConfigPath.getParent)
+    deleteDir(localConfigPath.getParent)
 
   test("valid includes should merge configurations"):
     val tempDir             = Paths.get(sys.props("fctx.test.tmpdir"))

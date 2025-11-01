@@ -1,8 +1,8 @@
 package first
 
-import com.monovore.decline.*
-import cats.implicits.*
-import first.config.{ConfigError, ConfigReader, FctxDef}
+import com.monovore.decline._
+import first.config.ConfigReader
+
 import java.nio.file.Paths
 
 object Main
@@ -10,10 +10,12 @@ object Main
       name = "first",
       header = "A tool for full context swapping",
       main =
+        Logging.configure()
+
         val helpCmd = Opts.subcommand(
           name = "help",
           help = "Display help information."
-        )(Opts.unit.map(_ => println("Help message will be displayed here.")))
+        )(Opts.unit.map(_ => scribe.info("Help message will be displayed here.")))
 
         val lsCmd = Opts.subcommand(
           name = "ls",
@@ -22,11 +24,14 @@ object Main
           Opts.unit.map { _ =>
             val reader      = new ConfigReader()
             val currentPath = Paths.get(System.getProperty("user.dir"))
-            // This will need to be refined to list all discovered contexts, not just one
-            // For now, we'll try to load a dummy context to show the reader works
-            reader.load("my-context", currentPath) match
-              case Right(fctxDef) => println(s"Found context: ${fctxDef.name}")
-              case Left(error)    => println(s"Error listing contexts: $error")
+            val contexts    = reader.listAvailableContextsWithPaths(currentPath)
+            if contexts.isEmpty then scribe.info("No contexts found.")
+            else
+              scribe.info("Available contexts:")
+              contexts.foreach { case (context, paths) =>
+                scribe.info(s"$context:")
+                paths.foreach(path => scribe.info(s"  $path"))
+              }
           }
         }
 
