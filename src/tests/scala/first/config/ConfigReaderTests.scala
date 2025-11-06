@@ -1,97 +1,87 @@
+import first.BaseSuite
 import first.config.CircularDependency
 import first.config.ConfigReader
 import first.config.FileParseError
-import munit.FunSuite
+import first.config.SwapAs
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import scala.jdk.CollectionConverters._
+import os.*
 
-class ConfigReaderTests extends FunSuite:
+class ConfigReaderTests extends BaseSuite:
 
   val reader: ConfigReader = new ConfigReader()
 
-  override def beforeAll(): Unit =
-    // Create a temporary directory for config files
-    val tempDir = Files.createTempDirectory("fctx-test")
-    sys.props += "fctx.test.tmpdir" -> tempDir.toString
+  private def setup(): os.Path =
+    os.temp.dir()
 
-    val absoluteDir   = Files.createDirectory(tempDir.resolve("absolute"))
-    val absoluteFile2 = absoluteDir.resolve("file2.txt")
-    Files.createFile(absoluteFile2)
+  test("successfully parse a valid HOCON config into FctxDef"):
+    val tempDir = setup()
+    val testDir = tempDir / "valid-hocon"
+    os.makeDir.all(testDir)
 
-    // Create a valid config file
-    val validConfigPath = tempDir.resolve(".then/my-context/fctx-def.conf")
-    Files.createDirectories(validConfigPath.getParent)
-    Files.writeString(
+    val absoluteDir   = testDir / "absolute"
+    val absoluteFile2 = absoluteDir / "file2.txt"
+    os.makeDir.all(absoluteDir)
+    os.write(absoluteFile2, "")
+
+    val validConfigPath = testDir / ".then" / "my-context" / "fctx-def.conf"
+    os.makeDir.all(validConfigPath / os.up)
+    os.write(
       validConfigPath,
       s"""
       name = "my-context"
       includes = ["included-context"]
       artifacts = [
-        { path = "./file1.txt", swap-as = "copy" },
+        { path = "./file1.txt", swapAs = "copy" },
         { path = "${absoluteFile2.toString}" }
       ]
-    """
+    """,
     )
 
     val includedConfigPath =
-      tempDir.resolve(".then/included-context/fctx-def.conf")
-    Files.createDirectories(includedConfigPath.getParent)
-    Files.writeString(
+      testDir / ".then" / "included-context" / "fctx-def.conf"
+    os.makeDir.all(includedConfigPath / os.up)
+    os.write(
       includedConfigPath,
       """
         name = "included-context"
-      """
+      """,
     )
 
-    Files.createFile(validConfigPath.getParent.resolve("file1.txt"))
+    os.write(validConfigPath / os.up / "file1.txt", "")
 
-    // Create an invalid config file
-    val invalidConfigPath = tempDir.resolve(".then/bad-context/fctx-def.conf")
-    Files.createDirectories(invalidConfigPath.getParent)
-    Files.writeString(
+    val contextName = "my-context"
+    val result      = reader.load(contextName, testDir)
+
+    assert(result.isRight, result.left.getOrElse("").toString)
+    val fctxDef = result.toOption.get
+    assertEquals(fctxDef.name, contextName)
+    assertEquals(fctxDef.includes, List("included-context"))
+    assertEquals(fctxDef.artifacts.size, 2)
+    assertEquals(fctxDef.artifacts.head.path, "./file1.txt")
+    assertEquals(fctxDef.artifacts.head.swapAs, SwapAs.Copy)
+    assert(fctxDef.artifacts.last.path.endsWith("file2.txt"))
+    assert(fctxDef.artifacts.last.path.startsWith("/"))
+    assertEquals(fctxDef.artifacts.last.swapAs, SwapAs.Symlink) // Default value
+
+  test("return FileParseError for invalid HOCON syntax"):
+    val tempDir = setup()
+    val testDir = tempDir / "invalid-hocon"
+    os.makeDir.all(testDir)
+
+    val invalidConfigPath = testDir / ".then" / "bad-context" / "fctx-def.conf"
+    os.makeDir.all(invalidConfigPath / os.up)
+    os.write(
       invalidConfigPath,
       """
       name = "bad-context"
       artifacts = [
         { path = { a = 1 } } // Invalid type, should be a string
       ]
-    """
+    """,
     )
 
-  override def afterAll(): Unit =
-    // Clean up temporary directory
-    sys.props.get("fctx.test.tmpdir").map(Paths.get(_)).foreach(deleteDir)
-
-  private def deleteDir(dir: Path): Unit =
-    Files
-      .walk(dir)
-      .sorted(java.util.Comparator.reverseOrder())
-      .forEach(Files.delete(_)): Unit
-
-  test("successfully parse a valid HOCON config into FctxDef"):
-    val tempDir     = Paths.get(sys.props("fctx.test.tmpdir"))
-    val contextName = "my-context"
-    val result      = reader.load(contextName, tempDir)
-
-    assert(result.isRight, result.left.getOrElse(""))
-    val fctxDef = result.toOption.get
-    assertEquals(fctxDef.name, contextName)
-    assertEquals(fctxDef.includes, List("included-context"))
-    assertEquals(fctxDef.artifacts.size, 2)
-    assert(fctxDef.artifacts.head.path.endsWith("file1.txt"))
-    assert(fctxDef.artifacts.head.path.startsWith("/"))
-    assertEquals(fctxDef.artifacts.head.swapAs, "copy")
-    assert(fctxDef.artifacts.last.path.endsWith("file2.txt"))
-    assert(fctxDef.artifacts.last.path.startsWith("/"))
-    assertEquals(fctxDef.artifacts.last.swapAs, "symlink") // Default value
-
-  test("return FileParseError for invalid HOCON syntax"):
-    val tempDir     = Paths.get(sys.props("fctx.test.tmpdir"))
     val contextName = "bad-context"
-    val result      = reader.load(contextName, tempDir)
+    val result      = reader.load(contextName, testDir)
 
     assert(result.isLeft)
     result match
@@ -102,75 +92,84 @@ class ConfigReaderTests extends FunSuite:
       case _       => fail("Expected FileParseError")
 
   test("cumulative config loading with overrides"):
-    val tempDir     = Paths.get(sys.props("fctx.test.tmpdir"))
+    val tempDir = setup()
+    val testDir = tempDir / "cumulative-loading"
+    os.makeDir.all(testDir)
     val contextName = "cumulative-context"
 
     // Create a global config in user home (simulated)
-    val userHome         = Paths.get(System.getProperty("user.home"))
-    val globalConfigPath = userHome.resolve(s".first/$contextName/fctx-def.conf")
-    Files.createDirectories(globalConfigPath.getParent)
-    Files.writeString(
+    val userHome = testDir / "user_home"
+    os.makeDir.all(userHome)
+    val originalHome = System.getProperty("user.home")
+    System.setProperty("user.home", userHome.toString())
+
+    val globalConfigPath = userHome / ".first" / contextName / "fctx-def.conf"
+    os.makeDir.all(globalConfigPath / os.up)
+    os.write(
       globalConfigPath,
       """
                       key = "global"
                       list = [1, 2]
-                    """
+                    """,
     )
 
     // Create a local config in tempDir
-    val localConfigPath = tempDir.resolve(s".then/$contextName/fctx-def.conf")
-    Files.createDirectories(localConfigPath.getParent)
-    Files.writeString(
+    val localConfigPath = testDir / ".then" / contextName / "fctx-def.conf"
+    os.makeDir.all(localConfigPath / os.up)
+    os.write(
       localConfigPath,
       """
                       key = "local"
                       list = [3, 4]
                       newKey = "added"
-                    """
+                    """,
     )
 
-    val result = reader.load(contextName, tempDir)
+    val result = reader.load(contextName, testDir)
 
     assert(result.isRight)
     val fctxDef = result.toOption.get
     assertEquals(fctxDef.name, contextName)
     // Local config should override global
     assertEquals(fctxDef.config.getString("key"), "local")
+    import scala.jdk.CollectionConverters.*
     assertEquals(fctxDef.config.getIntList("list").asScala.map(_.toInt).toList, List(3, 4))
     assertEquals(fctxDef.config.getString("newKey"), "added")
 
-    deleteDir(globalConfigPath.getParent)
-    deleteDir(localConfigPath.getParent)
+    // Restore user.home
+    System.setProperty("user.home", originalHome)
 
   test("valid includes should merge configurations"):
-    val tempDir             = Paths.get(sys.props("fctx.test.tmpdir"))
+    val tempDir = setup()
+    val testDir = tempDir / "valid-includes"
+    os.makeDir.all(testDir)
     val contextName         = "main-context"
     val includedContextName = "included-context"
 
     // Create included context
-    val includedConfigPath = tempDir.resolve(s".then/$includedContextName/fctx-def.conf")
-    Files.createDirectories(includedConfigPath.getParent)
-    Files.writeString(
+    val includedConfigPath = testDir / ".then" / includedContextName / "fctx-def.conf"
+    os.makeDir.all(includedConfigPath / os.up)
+    os.write(
       includedConfigPath,
       """
                       includedKey = "from-included"
                       commonKey = "from-included"
-                    """
+                    """,
     )
 
     // Create main context that includes the other
-    val mainConfigPath = tempDir.resolve(s".then/$contextName/fctx-def.conf")
-    Files.createDirectories(mainConfigPath.getParent)
-    Files.writeString(
+    val mainConfigPath = testDir / ".then" / contextName / "fctx-def.conf"
+    os.makeDir.all(mainConfigPath / os.up)
+    os.write(
       mainConfigPath,
       """
                       includes = ["included-context"]
                       mainKey = "from-main"
                       commonKey = "from-main"
-                    """
+                    """,
     )
 
-    val result = reader.load(contextName, tempDir)
+    val result = reader.load(contextName, testDir)
 
     assert(result.isRight)
     val fctxDef = result.toOption.get
@@ -181,25 +180,24 @@ class ConfigReaderTests extends FunSuite:
     // Included config should be merged first, then main config overrides
     assertEquals(fctxDef.config.getString("commonKey"), "from-main")
 
-    Files.delete(includedConfigPath)
-    Files.delete(mainConfigPath)
-
   test("circular includes should return CircularDependency error"):
-    val tempDir  = Paths.get(sys.props("fctx.test.tmpdir"))
+    val tempDir = setup()
+    val testDir = tempDir / "circular-includes"
+    os.makeDir.all(testDir)
     val contextA = "context-a"
     val contextB = "context-b"
 
     // Create context-a that includes context-b
-    val configAPath = tempDir.resolve(s".then/$contextA/fctx-def.conf")
-    Files.createDirectories(configAPath.getParent)
-    Files.writeString(configAPath, s"includes = [\"$contextB\"]")
+    val configAPath = testDir / ".then" / contextA / "fctx-def.conf"
+    os.makeDir.all(configAPath / os.up)
+    os.write(configAPath, s"includes = [\"$contextB\"]")
 
     // Create context-b that includes context-a
-    val configBPath = tempDir.resolve(s".then/$contextB/fctx-def.conf")
-    Files.createDirectories(configBPath.getParent)
-    Files.writeString(configBPath, s"includes = [\"$contextA\"]")
+    val configBPath = testDir / ".then" / contextB / "fctx-def.conf"
+    os.makeDir.all(configBPath / os.up)
+    os.write(configBPath, s"includes = [\"$contextA\"]")
 
-    val result = reader.load(contextA, tempDir)
+    val result = reader.load(contextA, testDir)
 
     assert(result.isLeft)
     result match
@@ -208,34 +206,30 @@ class ConfigReaderTests extends FunSuite:
         assert(path.contains(contextB))
       case _ => fail("Expected CircularDependency error")
 
-    Files.delete(configAPath)
-    Files.delete(configBPath)
-
-  test("relative artifact paths should be resolved to absolute paths"):
-    val tempDir     = Paths.get(sys.props("fctx.test.tmpdir"))
+  test("relative artifact paths should be preserved"):
+    val tempDir = setup()
+    scribe.Logger.root.withMinimumLevel(scribe.Level.Debug).replace()
+    val testDir = tempDir / "relative-paths"
+    os.makeDir.all(testDir)
     val contextName = "path-context"
 
-    val artifactFile = tempDir.resolve("test-artifact.txt")
-    Files.writeString(artifactFile, "content")
+    val artifactFile = testDir / "test-artifact.txt"
+    os.write(artifactFile, "content")
 
-    val configPath = tempDir.resolve(s".then/$contextName/fctx-def.conf")
-    Files.createDirectories(configPath.getParent)
-    Files.writeString(
+    val configPath = testDir / ".then" / contextName / "fctx-def.conf"
+    os.makeDir.all(configPath / os.up)
+    os.write(
       configPath,
-      s"""
+      """
                       artifacts = [
                         { path = "../../test-artifact.txt" }
                       ]
-                    """
+                    """,
     )
 
-    val result = reader.load(contextName, tempDir.resolve(s".then/$contextName"))
+    val result = reader.load(contextName, testDir / ".then" / contextName)
 
     assert(result.isRight)
     val fctxDef = result.toOption.get
     assertEquals(fctxDef.artifacts.size, 1)
-    assert(fctxDef.artifacts.head.path.startsWith("/")) // Should be absolute
-    assert(fctxDef.artifacts.head.path.endsWith("test-artifact.txt"))
-
-    Files.delete(artifactFile)
-    Files.delete(configPath)
+    assertEquals(fctxDef.artifacts.head.path, "../../test-artifact.txt")

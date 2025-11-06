@@ -1,8 +1,8 @@
 package first
 
-import scribe._
-import scribe.file._
-import scribe.format._
+import scribe.*
+import scribe.file.*
+import scribe.format.*
 
 object Logging:
   def configure(): Unit =
@@ -14,11 +14,11 @@ object Logging:
       .clearModifiers()
       .withHandler(
         formatter = cliFormatter,
-        minimumLevel = Some(Level.Info)
+        minimumLevel = Some(Level.Info),
       )
       .withHandler(
         formatter = fileFormatter,
         minimumLevel = Some(Level.Debug),
-        writer = FileWriter(System.getProperty("user.dir") / ".first" / "logs" / daily())
+        writer = FileWriter(System.getProperty("user.dir") / ".first" / "logs" / daily()),
       )
       .replace()

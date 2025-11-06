@@ -1,5 +1,5 @@
-import munit.FunSuite
+import first.BaseSuite
 
-class MainTests extends FunSuite:
+class MainTests extends BaseSuite:
   test("placeholder test"):
     assert(1 == 1)

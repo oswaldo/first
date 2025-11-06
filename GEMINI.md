@@ -40,3 +40,9 @@ This memories should be immediatelly available to Gemini:
 *   `first.md`: The foundational document of the project. It contains the project's philosophy, goals, and the overall vision. It's a "sincere open letter" to future developers and AI assistants who will work on this project.
 *   `README.md`: The main entry point for the project.
 *   `LICENSE`: The project's license file.
+
+## Active Technologies
+- Scala 3.3.4 + decline, sconfig, munit, scribe (001-fctx-management-actions)
+
+## Recent Changes
+- 001-fctx-management-actions: Added Scala 3.3.4 + decline, sconfig, munit, scribe
