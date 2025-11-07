@@ -1,4 +1,14 @@
 # first Constitution
+<!--
+- Version: 1.4.0 -> 1.5.0
+- Modified Principles: None
+- Added Principles:
+  - VI. Type Safety and Specificity
+- Removed Principles: None
+- Templates Requiring Updates:
+  - ✅ .specify/templates/plan-template.md
+- Follow-up TODOs: None
+-->
 <!-- This constitution outlines the guiding principles and governance for the 'first' project. -->
 
 ## Core Principles
@@ -18,6 +28,9 @@ The developer is the ultimate author of the code. AI assistants and other tools 
 ### V. Vision-Driven Development
 Development must be guided by a clear, high-level vision document that precedes detailed technical specifications. This "sincere open letter" serves as the foundational context to ensure that all development efforts are aligned with the project's core goals and philosophy, preventing deviation into unproductive paths.
 
+### VI. Type Safety and Specificity
+The project must use the most appropriate and specific types available for all properties and data structures. For instance, in Scala, time-related values should be represented using `java.time` types instead of generic types like `Long` or `String`. This enhances type safety, improves clarity, and leverages the type system to prevent common errors.
+
 ## Technical Constraints
 
 - **Initial Implementation**: The initial implementation of the `first` command-line tool must be a Scala CLI script that can be compiled to a native executable using Scala Native. This ensures a lightweight, fast-starting tool that is easy to distribute.
@@ -35,4 +48,4 @@ This constitution is the supreme governing document for the `first` project. All
 
 All pull requests and code reviews must include a check for compliance with this constitution. Any deviation from these principles must be explicitly justified and approved.
 
-**Version**: 1.4.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-10-31
+**Version**: 1.5.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-11-09

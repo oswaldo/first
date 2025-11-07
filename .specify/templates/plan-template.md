@@ -36,6 +36,7 @@
 *   [ ] **Separation of Concerns**: Is there a clear separation between the project's source code and development tools?
 *   [ ] **Developer as Author**: Does the plan respect the developer as the primary author, using tools as support?
 *   [ ] **Vision-Driven Development**: Is the plan aligned with the project's high-level vision document?
+*   [ ] **Type Safety and Specificity**: Does the plan use appropriate and specific types for data structures?
 
 ## Project Structure
 

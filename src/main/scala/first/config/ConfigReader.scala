@@ -43,6 +43,9 @@ class ConfigReader:
           md5 =
             if artifactConfig.hasPath("md5") then Some(artifactConfig.getString("md5"))
             else None,
+          sha256 =
+            if artifactConfig.hasPath("sha256") then Some(artifactConfig.getString("sha256"))
+            else None,
           revision =
             if artifactConfig.hasPath("revision") then Some(artifactConfig.getString("revision"))
             else None,
@@ -130,9 +133,11 @@ class ConfigReader:
     def loop(currentPathOpt: Option[Path], acc: List[Path]): List[Path] =
       currentPathOpt match
         case Some(currentPath) if os.isDir(currentPath) && currentPath.segmentCount > 0 =>
+          scribe.debug(s"Loop: currentPath = $currentPath")
           val fctxPath = currentPath / ".then" / contextName / "fctx-def.conf"
-          val newAcc   = if os.exists(fctxPath) then fctxPath :: acc else acc
-          val parent   = Try(currentPath / os.up).toOption
+          scribe.debug(s"Loop: fctxPath = $fctxPath")
+          val newAcc = if os.exists(fctxPath) then fctxPath :: acc else acc
+          val parent = Try(currentPath / os.up).toOption
           loop(parent, newAcc)
         case _ => acc
 

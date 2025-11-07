@@ -2,7 +2,7 @@
 //> using scala 3.3.4
 //> using platforms native
 //> using nativeVersion 0.5.9
-//> using options -Wunused:all
+//> using options -Wunused:all -Xfatal-warnings -deprecation -feature -unchecked
 //> using mainClass first.Main
 
 //> using dependency com.github.lolgab::scala-native-crypto::0.2.1

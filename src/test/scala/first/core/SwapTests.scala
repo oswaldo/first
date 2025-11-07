@@ -30,7 +30,7 @@ class SwapTests extends BaseSuite:
     val fctxDef     = FctxDef(name, dummyConfig, artifacts = artifacts)
     os.write(contextDir / "fctx-def.conf", write(fctxDef))
 
-    artifacts.foreach { case Artifact(path, swapAs, md5, revision) =>
+    artifacts.foreach { case Artifact(path, swapAs, md5, sha256, revision) =>
       val artifactFile = artifactsDir / RelPath(path)
       os.makeDir.all(artifactFile / os.up)
       os.write(artifactFile, s"content for $path in $name")

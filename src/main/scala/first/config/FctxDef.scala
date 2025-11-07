@@ -8,6 +8,7 @@ case class Artifact(
     path: String,
     swapAs: SwapAs = SwapAs.Symlink, // Defaults to symlink as per spec
     md5: Option[String] = None,
+    sha256: Option[String] = None,
     revision: Option[String] = None,
 ) derives ReadWriter
 

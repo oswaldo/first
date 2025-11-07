@@ -1,4 +1,4 @@
-import first.BaseSuite
+package first
 
 class MainTests extends BaseSuite:
   test("placeholder test"):

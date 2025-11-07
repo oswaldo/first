@@ -1,8 +1,6 @@
+package first.config
+
 import first.BaseSuite
-import first.config.CircularDependency
-import first.config.ConfigReader
-import first.config.FileParseError
-import first.config.SwapAs
 
 import os.*
 
