@@ -1,0 +1,20 @@
+# IDEs
+.idea/
+.bloop/
+.metals/
+.vscode/
+
+# Scala CLI cache
+.scala-build/
+
+# OS-specific
+.DS_Store
+
+.bsp/
+.scala-build/
+
+*.class
+*.tasty
+*.sjsir
+
+tmp/

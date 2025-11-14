@@ -1,0 +1,93 @@
+@import url(https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Roboto:wght@300;400;700&display=swap);
+
+:root {
+    --background-color: #1a1a2e;
+    --text-color: #e0e0e0;
+    --accent-color: #e94560;
+    --retro-font: Dancing Script, cursive;
+    --modern-font: Roboto, sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: var(--modern-font);
+    color: var(--text-color);
+    background-color: var(--background-color);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#app {
+    position: relative; /* Added for positioning context */
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+    padding: 40px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    font-family: var(--retro-font);
+    font-size: 3.5em;
+    color: var(--accent-color);
+    margin-bottom: 0.5em;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+p {
+    font-size: 1.1em;
+    margin-bottom: 1em;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-color);
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+a:hover {
+    color: var(--text-color);
+    border-color: var(--text-color);
+}
+
+.button {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    padding: 12px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button:hover {
+    background-color: var(--text-color);
+    color: var(--background-color);
+}
+
+.language-selector {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 0.9em;
+}
+
+.language-selector select {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    padding: 5px;
+    cursor: pointer;
+    font-family: var(--modern-font);
+}
