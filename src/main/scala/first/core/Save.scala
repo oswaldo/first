@@ -2,6 +2,7 @@ package first.core
 
 import first.cli.SaveCommand.SaveOpts
 import first.config.Artifact
+import first.remote.UrlResolver
 
 import os.*
 
@@ -19,10 +20,14 @@ class Save:
     scribe.debug(s"Target fctx directory: $fctxConfDir")
 
     val artifacts = opts.artifacts.map { p =>
-      val sourcePath   = workingDir / p
-      val relativePath = sourcePath.relativeTo(workingDir)
-      val md5          = if os.isFile(sourcePath) then Some(Hashing.calculateMd5(sourcePath)) else None
-      Artifact(path = relativePath.toString, swapAs = opts.swapAs, md5 = md5)
+      if UrlResolver.isRemote(p.toString) then
+        scribe.debug(s"Processing remote artifact: $p")
+        Artifact(path = p.toString, swapAs = opts.swapAs)
+      else
+        val sourcePath   = workingDir / p
+        val relativePath = sourcePath.relativeTo(workingDir)
+        val md5          = if os.isFile(sourcePath) then Some(Hashing.calculateMd5(sourcePath)) else None
+        Artifact(path = relativePath.toString, swapAs = opts.swapAs, md5 = md5)
     }
 
     val hoconContent =
@@ -40,9 +45,11 @@ class Save:
       scribe.info("DRY RUN: The following actions would be taken:")
       scribe.info(s"- Ensure directory exists: $artifactsDir")
       artifacts.foreach { artifact =>
-        val sourcePath = workingDir / os.RelPath(artifact.path)
-        val destPath   = artifactsDir / os.RelPath(artifact.path)
-        scribe.info(s"- Copy: $sourcePath -> $destPath")
+        if !UrlResolver.isRemote(artifact.path) then
+          val sourcePath = workingDir / os.RelPath(artifact.path)
+          val destPath   = artifactsDir / os.RelPath(artifact.path)
+          scribe.info(s"- Copy: $sourcePath -> $destPath")
+        else scribe.info(s"- Remote Artifact (no copy): ${artifact.path}")
       }
       if os.exists(fctxConfPath) then
         scribe.info(s"- Backup existing file: $fctxConfPath to ${fctxConfPath.toString + ".bak"}")
@@ -67,10 +74,12 @@ class Save:
       os.makeDir.all(artifactsDir)
       scribe.debug(s"Ensured artifacts directory exists: $artifactsDir")
       artifacts.foreach { artifact =>
-        val sourcePath = workingDir / os.RelPath(artifact.path)
-        val destPath   = artifactsDir / os.RelPath(artifact.path)
-        os.copy(sourcePath, destPath, createFolders = true, replaceExisting = true)
-        scribe.debug(s"Copied artifact: $sourcePath -> $destPath")
+        if !UrlResolver.isRemote(artifact.path) then
+          val sourcePath = workingDir / os.RelPath(artifact.path)
+          val destPath   = artifactsDir / os.RelPath(artifact.path)
+          os.copy(sourcePath, destPath, createFolders = true, replaceExisting = true)
+          scribe.debug(s"Copied artifact: $sourcePath -> $destPath")
+        else scribe.debug(s"Skipping copy for remote artifact: ${artifact.path}")
       }
 
       os.write(fctxConfPath, hoconContent)

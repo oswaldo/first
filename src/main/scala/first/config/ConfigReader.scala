@@ -9,7 +9,14 @@ import org.ekrich.config.Config
 import org.ekrich.config.ConfigFactory
 import os.*
 
-class ConfigReader:
+import first.remote.UrlResolver
+import first.remote.Cache
+import java.net.URI
+
+import first.remote.DownloaderClient
+import first.remote.Downloader
+
+class ConfigReader(downloader: DownloaderClient = Downloader):
 
   private def parseConfigFile(path: Path): Either[ConfigError, Config] =
     scribe.debug(s"Parsing config file: $path")
@@ -24,9 +31,10 @@ class ConfigReader:
 
   private def mapConfigToFctxDef(
       config: Config,
-      name: String,
+      contextName: String,
+      baseUri: Option[URI] = None,
   ): Either[ConfigError, FctxDef] =
-    scribe.debug(s"Mapping config to FctxDef for context: $name")
+    scribe.debug(s"Mapping config to FctxDef for context: $contextName")
     Try {
       val includes =
         if config.hasPath("includes") then config.getStringList("includes").asScala.toList
@@ -35,8 +43,14 @@ class ConfigReader:
         if config.hasPath("artifacts") then config.getConfigList("artifacts").asScala.toList
         else Nil
       val artifacts = artifactsConfig.map { artifactConfig =>
+        val path = artifactConfig.getString("path")
+        val resolvedPath = baseUri match
+          case Some(base) if !UrlResolver.isRemote(path) =>
+            base.resolve(path).toString
+          case _ => path
+
         Artifact(
-          path = artifactConfig.getString("path"),
+          path = resolvedPath,
           swapAs =
             if artifactConfig.hasPath("swapAs") then first.config.SwapAs.fromString(artifactConfig.getString("swapAs"))
             else first.config.SwapAs.Symlink,
@@ -51,7 +65,7 @@ class ConfigReader:
             else None,
         )
       }
-      FctxDef(name, config, includes, artifacts)
+      FctxDef(contextName, config, includes, artifacts)
     }.toEither.left.map:
       case e: org.ekrich.config.ConfigException =>
         scribe.debug(s"Error mapping config to FctxDef: ${e.getMessage}")
@@ -61,68 +75,141 @@ class ConfigReader:
         )
       case e =>
         scribe.debug(s"Error mapping config to FctxDef: ${e.getMessage}")
-        FileParseError(name, s"Error mapping config to FctxDef: ${e.getMessage}")
+        FileParseError(contextName, s"Error mapping config to FctxDef: ${e.getMessage}")
 
-  private def loadConfigRecursive(
-      contextName: String,
+  case class LoadedConfig(config: Config, sourceUri: Option[URI])
+
+  private def handleRemoteInclude(
+      includeUrl: String,
       startPath: Path,
       visited: Set[String],
-  ): Either[ConfigError, Config] =
-    scribe.debug(s"Recursively loading config for '$contextName' from '$startPath'")
-    if visited.contains(contextName) then
-      scribe.debug(s"Circular dependency detected for context: $contextName")
-      Left(CircularDependency(visited.toList :+ contextName))
+  ): Either[ConfigError, List[LoadedConfig]] =
+    scribe.debug(s"Handling remote include: $includeUrl")
+
+    // Check for circular dependency at URL level
+    if visited.contains(includeUrl) then Left(CircularDependency(visited.toList :+ includeUrl))
     else
-      val newVisited = visited + contextName
+      val newVisited = visited + includeUrl
+      val cache      = Cache()
 
-      val discoveredPaths = discoverFctxDefPaths(contextName, startPath)
-      scribe.debug(s"Discovered paths for '$contextName': $discoveredPaths")
+      UrlResolver.resolve(includeUrl).left.map(e => FileParseError(includeUrl, e)).flatMap { uri =>
+        downloader.download(uri).left.map(e => FileParseError(includeUrl, e)).flatMap { content =>
+          val (hash, path) = cache.put(content)
+          scribe.debug(s"Downloaded remote include to $path")
 
-      val localConfigEither =
-        discoveredPaths.foldLeft(
-          Right(ConfigFactory.empty): Either[ConfigError, Config],
-        ) { case (accEither, currentPath) =>
-          accEither.flatMap { accConfig =>
-            parseConfigFile(currentPath).map(currentConfig => currentConfig.withFallback(accConfig))
-          }
-        }
-
-      localConfigEither.flatMap { localConfig =>
-        val includes =
-          if localConfig.hasPath("includes") then localConfig.getStringList("includes").asScala.toList
-          else Nil
-        scribe.debug(s"Includes for '$contextName': $includes")
-
-        val includedConfigsEither: Either[ConfigError, List[Config]] =
-          includes.traverse { includeName =>
-            loadConfigRecursive(includeName, startPath, newVisited)
-          }
-
-        includedConfigsEither.map { includedConfigs =>
-          val mergedIncludedConfig =
-            includedConfigs.foldLeft(ConfigFactory.empty) { (acc, conf) =>
-              conf.withFallback(acc)
+          Try(ConfigFactory.parseFile(path.toIO)).toEither.left
+            .map { e =>
+              scribe.debug(s"Failed to parse remote include: $includeUrl, error: ${e.getMessage}")
+              FileParseError(includeUrl, e.getMessage)
             }
-          localConfig.withFallback(mergedIncludedConfig)
+            .flatMap { config =>
+              // Recursively process includes in the remote config
+              val includes = Try(config.getStringList("includes").asScala.toList).getOrElse(List.empty)
+
+              val includedConfigsEither: Either[ConfigError, List[List[LoadedConfig]]] =
+                includes.traverse { includeStr =>
+                  // Resolve relative includes against the remote URI
+                  val resolvedIncludeStr =
+                    if UrlResolver.isRemote(includeStr) then includeStr
+                    else uri.resolve(includeStr).toString
+
+                  if UrlResolver.isRemote(resolvedIncludeStr) then
+                    handleRemoteInclude(resolvedIncludeStr, startPath, newVisited)
+                  else
+                    // Local includes from remote config (unusual but possible)
+                    loadContextByName(includeStr, startPath, newVisited)
+                }
+
+              includedConfigsEither.map { includedConfigs =>
+                LoadedConfig(config, Some(uri)) :: includedConfigs.flatMap(identity)
+              }
+            }
         }
       }
+
+  private def loadContextByName(
+      contextName: String,
+      startPath: Path,
+      visited: Set[String] = Set.empty,
+  ): Either[ConfigError, List[LoadedConfig]] =
+    // Check for circular dependency at context name level
+    if visited.contains(contextName) then Left(CircularDependency(visited.toList :+ contextName))
+    else
+      val newVisited      = visited + contextName
+      val discoveredPaths = discoverFctxDefPaths(contextName, startPath)
+      discoveredPaths
+        .traverse { path =>
+          loadConfigRecursive(path.toString, startPath, newVisited)
+        }
+        .map(_.flatten)
+
+  private def loadConfigRecursive(
+      path: String,
+      startPath: Path,
+      visited: Set[String],
+      basePath: Option[URI] = None,
+  ): Either[ConfigError, List[LoadedConfig]] =
+    val resolvedPathEither: Either[ConfigError, Path] =
+      if UrlResolver.isRemote(path) then Right(os.Path(path, startPath))
+      else Right(os.Path(path, startPath))
+
+    resolvedPathEither.flatMap { configFile =>
+      if visited.contains(configFile.toString) then Left(CircularDependency(visited.toList :+ configFile.toString))
+      else
+        val newVisited = visited + configFile.toString
+        parseConfigFile(configFile).flatMap { config =>
+          val includes = Try(config.getStringList("includes").asScala.toList).getOrElse(List.empty)
+
+          val includedConfigsEither: Either[ConfigError, List[List[LoadedConfig]]] =
+            includes.traverse { includeStr =>
+              val resolvedIncludeStr = basePath match
+                case Some(baseUri) if !UrlResolver.isRemote(includeStr) =>
+                  baseUri.resolve(includeStr).toString
+                case _ => includeStr
+
+              if UrlResolver.isRemote(resolvedIncludeStr) then
+                handleRemoteInclude(resolvedIncludeStr, startPath, newVisited)
+              else
+                // For local includes, treat as context names
+                loadContextByName(includeStr, startPath, newVisited)
+            }
+
+          includedConfigsEither.map { includedConfigs =>
+            LoadedConfig(config, basePath) :: includedConfigs.flatMap(identity)
+          }
+        }
+    }
 
   def load(
       contextName: String,
       startPath: Path,
   ): Either[ConfigError, FctxDef] =
     scribe.debug(s"Loading context '$contextName' from '$startPath'")
-    loadConfigRecursive(contextName, startPath, Set.empty).flatMap { finalConfig =>
-      if finalConfig.isEmpty then
+
+    loadContextByName(contextName, startPath).flatMap { allConfigs =>
+      if allConfigs.isEmpty then
         scribe.debug(s"No config found for context: $contextName")
         Left(
-          PathNotFound(
-            s"No fctx-def.conf for context '$contextName' found at or above $startPath, or in user home.",
-          ),
+          PathNotFound(s"No fctx-def.conf for context '$contextName' found at or above $startPath, or in user home."),
         )
       else
-        scribe.debug(s"Successfully loaded config for context: $contextName")
-        mapConfigToFctxDef(finalConfig, contextName)
+        // Order configs: discovered paths are [userHome, local...], we want local to override userHome
+        // loadContextByName returns flattened list already, but from multiple discovered paths
+        // We need to reverse the order by discovered path, not by individual config
+        // Actually, loadContextByName already handles this correctly by traversing discoveredPaths in order
+        // and flattening, so configs from later paths come later in the list
+        // We need to reverse to get local-first ordering
+        val mergedConfig = allConfigs.map(_.config).reduceLeft(_ withFallback _)
+
+        // Collect artifacts
+        val allArtifactsEither = allConfigs.map { loadedConfig =>
+          mapConfigToFctxDef(loadedConfig.config, contextName, loadedConfig.sourceUri).map(_.artifacts)
+        }.sequence
+
+        allArtifactsEither.map { artifactsList =>
+          val allArtifacts = artifactsList.flatten
+          FctxDef(contextName, mergedConfig, List.empty, allArtifacts)
+        }
     }
 
   private def discoverFctxDefPaths(

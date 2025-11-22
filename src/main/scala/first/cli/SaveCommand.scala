@@ -4,12 +4,11 @@ import first.config.SwapAs
 
 import cats.implicits.*
 import com.monovore.decline.*
-import os.RelPath
 
 object SaveCommand:
   case class SaveOpts(
       contextName: String,
-      artifacts: List[RelPath],
+      artifacts: List[String],
       swapAs: SwapAs,
       force: Boolean,
       dryRun: Boolean,
@@ -23,7 +22,7 @@ object SaveCommand:
         long = "artifacts",
         help = "A comma-separated list of file or directory paths to be included as artifacts.",
       )
-      .map(_.split(',').filter(_.nonEmpty).map(os.RelPath(_)).toList)
+      .map(_.split(',').filter(_.nonEmpty).toList)
       .withDefault(List.empty)
     val swapAsOpt = Opts
       .option[String](

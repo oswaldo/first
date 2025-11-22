@@ -231,3 +231,81 @@ class ConfigReaderTests extends BaseSuite:
     val fctxDef = result.toOption.get
     assertEquals(fctxDef.artifacts.size, 1)
     assertEquals(fctxDef.artifacts.head.path, "../../test-artifact.txt")
+
+  test("remote include should download and merge config"):
+    val remoteUrl     = "http://example.com/remote.conf"
+    val remoteContent = """
+      remoteKey = "remote-value"
+      commonKey = "remote-value"
+    """
+
+    val mockDownloader = new first.remote.DownloaderClient:
+      def download(uri: java.net.URI, env: Map[String, String]): Either[String, Array[Byte]] =
+        if uri.toString == "http://example.com/remote.conf" then Right(remoteContent.getBytes("UTF-8"))
+        else Left("Not found")
+
+      def checkExists(uri: java.net.URI, env: Map[String, String]): Boolean =
+        uri.toString == "http://example.com/remote.conf"
+
+    val readerWithMock = new ConfigReader(mockDownloader)
+
+    val tempDir = setup()
+    val testDir = tempDir / "remote-include"
+    os.makeDir.all(testDir)
+    val contextName = "remote-context"
+
+    val configPath = testDir / ".then" / contextName / "fctx-def.conf"
+    os.makeDir.all(configPath / os.up)
+    os.write(
+      configPath,
+      s"""
+      includes = ["$remoteUrl"]
+      localKey = "local-value"
+      commonKey = "local-value"
+    """,
+    )
+
+    val result = readerWithMock.load(contextName, testDir)
+    assert(result.isRight, result.left.getOrElse("").toString)
+    val fctxDef = result.toOption.get
+    assertEquals(fctxDef.config.getString("remoteKey"), "remote-value")
+    assertEquals(fctxDef.config.getString("localKey"), "local-value")
+    assertEquals(fctxDef.config.getString("commonKey"), "local-value") // Local overrides remote
+
+  test("circular remote includes should return CircularDependency error"):
+    val urlA = "http://example.com/config-a.conf"
+    val urlB = "http://example.com/config-b.conf"
+
+    // Config A includes Config B
+    val contentA = s"""includes = ["$urlB"]"""
+    // Config B includes Config A (circular!)
+    val contentB = s"""includes = ["$urlA"]"""
+
+    val mockDownloader = new first.remote.DownloaderClient:
+      def download(uri: java.net.URI, env: Map[String, String]): Either[String, Array[Byte]] =
+        uri.toString match
+          case `urlA` => Right(contentA.getBytes("UTF-8"))
+          case `urlB` => Right(contentB.getBytes("UTF-8"))
+          case _      => Left("Not found")
+
+      def checkExists(uri: java.net.URI, env: Map[String, String]): Boolean =
+        uri.toString == urlA || uri.toString == urlB
+
+    val readerWithMock = new ConfigReader(mockDownloader)
+
+    val tempDir = setup()
+    val testDir = tempDir / "remote-circular"
+    os.makeDir.all(testDir)
+    val contextName = "main-context"
+
+    val configPath = testDir / ".then" / contextName / "fctx-def.conf"
+    os.makeDir.all(configPath / os.up)
+    os.write(configPath, s"""includes = ["$urlA"]""")
+
+    val result = readerWithMock.load(contextName, testDir)
+
+    assert(result.isLeft, "Expected circular dependency error")
+    result match
+      case Left(CircularDependency(path)) =>
+        assert(path.contains(urlA) || path.contains(urlB), s"Expected path to contain remote URLs, got: $path")
+      case _ => fail("Expected CircularDependency error")
