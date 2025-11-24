@@ -40,8 +40,8 @@ by running the specified command for each requirement.
    the dependency to com.softwaremill.sttp.client4::core::4.0.13 for that
      ```
 
-5. [ ] **MVP installation via coursier**
-    * **Description**: Investigate and implement installation strategy using coursier so eventually a user can call `cs install first`. Let's do it if low effort
+5. [x] **Easy Installation via Install Script** (DONE)
+    * **Description**: Implement installation strategy using an install script for native binary distribution. Originally planned for Coursier but pivoted to install script after discovering Coursier is incompatible with Scala Native.
     * **Command**:
       ```
       /speckit.specify Enable installation via coursier so users can run 'cs install first'

@@ -113,7 +113,7 @@ diverge a bit as we progress but just to have a main idea):
 5. [X] We can load a saved fctx using the load cli action
 6. [X] We can swap between fctxs using the swap cli action
 7. [X] We can use remote artifacts and contexts (http/https/gh)
-8. We can install the tool via coursier
+8. [X] We can install the tool easily with `curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh`
 9. We can dogfood the tool for its own development
 10. We can safely manage and remove fctxs using the new cleanup actions (`rm-def`, `rm-files`, `rm-all`).
 11. We can perform all supported cli actions using a terminal interactive screen / mode
