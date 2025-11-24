@@ -1,3 +1,25 @@
+## Installation
+
+Install `first` with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh
+```
+
+This will download and install the latest version to `~/.local/bin/first`.
+
+### Custom Installation Directory
+
+To install to a different location, set the `FIRST_INSTALL_DIR` environment variable:
+
+```bash
+FIRST_INSTALL_DIR=$HOME/bin curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh
+```
+
+### Manual Installation
+
+Download the binary for your platform from the [releases page](https://github.com/oswaldo/first/releases) and place it in your PATH.
+
 ## Building and Running
 
 This project uses `scala-cli` to compile and run.
