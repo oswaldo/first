@@ -9,22 +9,17 @@ REPO="oswaldo/first"
 INSTALL_DIR="${FIRST_INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="first"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
+# Colors for output (using printf with literal escapes)
 info() {
-    printf "${GREEN}==>${NC} %s\n" "$1"
+    printf '\033[0;32m==>\033[0m %s\n' "$1"
 }
 
 warn() {
-    printf "${YELLOW}Warning:${NC} %s\n" "$1"
+    printf '\033[1;33mWarning:\033[0m %s\n' "$1"
 }
 
 error() {
-    printf "${RED}Error:${NC} %s\n" "$1" >&2
+    printf '\033[0;31mError:\033[0m %s\n' "$1" >&2
     exit 1
 }
 
@@ -98,7 +93,7 @@ main() {
     
     # Verify installation
     if "$INSTALL_DIR/$BINARY_NAME" help >/dev/null 2>&1; then
-        info "${GREEN}✓${NC} Installation successful!"
+        printf '\033[0;32m==>\033[0m \033[0;32m✓\033[0m Installation successful!\n'
     else
         warn "Binary installed but verification failed. Please check manually."
     fi
