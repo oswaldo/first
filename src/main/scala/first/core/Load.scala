@@ -6,6 +6,7 @@ import first.config.ConfigReader
 import first.config.FctxDef
 import first.config.SwapAs
 import first.remote.Cache
+import first.remote.DownloaderClient
 import first.remote.Downloader
 import first.remote.UrlResolver
 
@@ -13,7 +14,7 @@ import java.net.URI
 
 import os.*
 
-class Load:
+class Load(downloader: DownloaderClient = Downloader):
   private val cache = Cache()
 
   private def handleRemoteArtifact(artifact: Artifact): Either[String, Path] =
@@ -30,7 +31,7 @@ class Load:
         case None =>
           // 3. Download
           scribe.debug(s"Artifact not in cache, downloading from $uri")
-          Downloader.download(uri).flatMap { content =>
+          downloader.download(uri).flatMap { content =>
             // 4. Verify checksum
             val actualSha256 = Hashing.calculateSha256(content)
             artifact.sha256 match
@@ -44,6 +45,30 @@ class Load:
                 Right(cachedPath)
           }
     }
+
+  private[core] def validateArtifacts(artifacts: List[Artifact], fctxConfDir: Path): Either[List[String], Unit] =
+    val errors = artifacts.flatMap { artifact =>
+      if UrlResolver.isRemote(artifact.path) then
+        UrlResolver.resolve(artifact.path) match
+          case Right(uri) =>
+            if downloader.checkExists(uri) then None
+            else Some(s"Remote artifact not found: ${artifact.path}")
+          case Left(error) => Some(s"Invalid remote URL ${artifact.path}: $error")
+      else
+        // Local artifact
+        // Artifact paths are relative to the fctx-def.conf directory (fctxConfDir)
+        // But wait, ConfigReader resolves them against baseUri if provided.
+        // For local config, baseUri is None, so path is relative to config file.
+        // ConfigReader.mapConfigToFctxDef resolves paths if baseUri is present.
+        // If loaded from local file, baseUri is None.
+        // So artifact.path is relative to fctxConfDir.
+        val artifactPath = fctxConfDir / os.RelPath(artifact.path)
+        if os.exists(artifactPath) then None
+        else Some(s"Local artifact not found: $artifactPath")
+    }
+
+    if errors.isEmpty then Right(())
+    else Left(errors)
 
   def run(opts: LoadOpts, context: Context): Unit =
     if opts.verbose then
@@ -61,6 +86,43 @@ class Load:
       case Right(fctxDef) =>
         scribe.info(s"Loading fctx '${fctxDef.name}'...")
         scribe.debug(s"Loaded fctxDef: $fctxDef")
+
+        // Pre-flight validation
+        // Note: For remote includes, artifacts might have absolute URLs or paths relative to the remote config.
+        // ConfigReader should have resolved them to absolute URLs if they were relative to a remote config.
+        // If they are local artifacts from a local config, they are relative to fctxConfDir (or wherever they were defined).
+        // Wait, if we have merged artifacts from multiple sources, how do we know where they are relative to?
+        // ConfigReader.mapConfigToFctxDef resolves paths against baseUri.
+        // If baseUri is None (local config), it leaves them as is.
+        // If baseUri is Some (remote config), it resolves them to absolute URLs.
+        // So:
+        // - Remote artifacts (http/gh) are absolute URLs.
+        // - Local artifacts from local config are relative paths.
+        // - Local artifacts from remote config (if any) are resolved to absolute URLs (so they become remote artifacts).
+
+        // But wait, what if we have a local include?
+        // loadContextByName -> loadConfigRecursive
+        // If we include a local file, baseUri is None.
+        // So artifacts in included local files are relative to... what?
+        // ConfigReader doesn't resolve local paths against the included file's path currently.
+        // It only resolves against baseUri if it's remote.
+        // If I have main.conf including subdir/sub.conf, and sub.conf has artifact "foo.txt".
+        // Is "foo.txt" relative to main.conf or sub.conf?
+        // In standard HOCON/Config logic, it's just a string.
+        // Our ConfigReader doesn't adjust local paths.
+        // So we assume all local artifacts are relative to the main fctx-def.conf directory (artifactsDir).
+        // This seems to be the current assumption in Load.scala:
+        // else Right(artifactsDir / os.RelPath(artifact.path))
+
+        // So for validation, we check against artifactsDir for local artifacts.
+
+        validateArtifacts(fctxDef.artifacts, artifactsDir) match
+          case Left(errors) =>
+            errors.foreach(e => scribe.error(e))
+            scribe.error("Pre-flight validation failed. Aborting load.")
+            return
+          case Right(_) =>
+            scribe.debug("Pre-flight validation passed.")
 
         if opts.dryRun then
           scribe.info("DRY RUN: The following actions would be taken:")
