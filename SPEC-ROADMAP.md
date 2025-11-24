@@ -29,7 +29,7 @@ by running the specified command for each requirement.
       /speckit.specify Implement fctx management actions 'save', 'load', and 'swap' with supporting flags
       ```
 
-4. [ ] **Remote artifacts and contexts** (WIP)
+4. [x] **Remote artifacts and contexts** (DONE)
     * **Command**:
       ```
       /speckit.specify we should be able to add in a fctx artifacts from http and https sources and
@@ -40,12 +40,12 @@ by running the specified command for each requirement.
    the dependency to com.softwaremill.sttp.client4::core::4.0.13 for that
      ```
 
-5. [ ] **Dogfooding**
-    * **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle 
-    * **Command**: TBD
-   
-6. [ ] **MVP installation via coursier**
+5. [ ] **MVP installation via coursier**
     * **Description**: Investigate and implement installation strategy using coursier so eventually a user can call `cs install first`. Let's do it if low effort
+    * **Command**: TBD
+
+6. [ ] **Dogfooding**
+    * **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle 
     * **Command**: TBD
    
 7. [ ] **MVP gh-pages**
