@@ -42,15 +42,24 @@ by running the specified command for each requirement.
 
 5. [ ] **MVP installation via coursier**
     * **Description**: Investigate and implement installation strategy using coursier so eventually a user can call `cs install first`. Let's do it if low effort
-    * **Command**: TBD
+    * **Command**:
+      ```
+      /speckit.specify Enable installation via coursier so users can run 'cs install first'
+      ```
 
 6. [ ] **Dogfooding**
     * **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle 
-    * **Command**: TBD
+    * **Command**:
+      ```
+      /speckit.specify Define the workflow for dogfooding 'first' to manage its own development environment from a separate repository
+      ```
    
 7. [ ] **MVP gh-pages**
     * **Description**: Add gh-pages branch for a simple and elegant static page. Should research what is the current best practice
-    * **Command**: TBD
+    * **Command**:
+      ```
+      /speckit.specify Establish a 'gh-pages' branch for a simple project website
+      ```
 
 8. [ ] **Transactional File Operations**
     * **Description**: Specify a transactional approach for all file system operations (`load`, `swap`, `rm*`, etc.).
