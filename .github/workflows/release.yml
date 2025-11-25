@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x86_64
+            asset_name: first-linux-x86_64
+            install_deps: |
+              sudo apt-get update
+              sudo apt-get install -y libidn2-dev libcurl4-openssl-dev libssl-dev clang
+          - os: macos-13 # Intel Mac
+            target: macos-x86_64
+            asset_name: first-macos-x86_64
+            install_deps: |
+              brew install libidn2 openssl
+          - os: macos-14 # Apple Silicon Mac
+            target: macos-aarch64
+            asset_name: first-macos-aarch64
+            install_deps: |
+              brew install libidn2 openssl
+          - os: windows-latest
+            target: windows-x86_64
+            asset_name: first-windows-x86_64.exe
+            install_deps: choco install openssl
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Scala CLI
+        uses: VirtusLab/scala-cli-setup@v1
+        with:
+          jvm: "temurin:17"
+
+      - name: Install Dependencies
+        run: ${{ matrix.install_deps }}
+
+      - name: Build Native Binary
+        run: |
+          scala-cli package . \
+            --native \
+            --native-mode release-fast \
+            -o ${{ matrix.asset_name }} \
+            --force
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ matrix.asset_name }}

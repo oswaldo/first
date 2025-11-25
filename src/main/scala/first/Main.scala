@@ -48,7 +48,7 @@ object Main
           at.foreach(path => System.setProperty("user.dir", os.Path(path).toString))
           val context = new Context(workingDir)
 
-          scribe.info(s"Context: $context, WorkingDir: $workingDir") // Test usage
+          scribe.info(s"Context: ${context.workingDir}, WorkingDir: $workingDir") // Test usage
 
           cmd match
             case SaveCmd(opts) => new Save().run(opts, context)
@@ -57,7 +57,7 @@ object Main
             case LsCmd =>
               val reader   = new ConfigReader()
               val contexts = reader.listAvailableContextsWithPaths(workingDir)
-              if contexts.isEmpty then scribe.info("No contexts found.")
+              if contexts.isEmpty then scribe.info("No saved contexts found.")
               else
                 scribe.info("Available contexts:")
                 contexts.foreach { case (c, paths) =>

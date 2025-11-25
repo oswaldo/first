@@ -20,5 +20,6 @@ object Logging:
         formatter = fileFormatter,
         minimumLevel = Some(Level.Debug),
         writer = FileWriter(System.getProperty("user.dir") / ".first" / "logs" / daily()),
+        outputFormat = scribe.output.format.ASCIIOutputFormat,
       )
       .replace()
