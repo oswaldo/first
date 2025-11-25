@@ -151,6 +151,8 @@ scala-cli test .
 scala-cli package . --native -o tmp/first -f
 ```
 
+> **Note:** The `tmp` directory is used to store the binary for testing purposes. You can replace it with any other directory of your choice. Also, this is a scala-native binary, so it will only work on the same platform as the one you compiled it on.
+
 **Code quality:**
 ```bash
 .specify/scripts/bash/lint.sh
