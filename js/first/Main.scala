@@ -45,7 +45,9 @@ object Main {
 
   // Helper to get translated text reactively
   def t(key: String): Signal[String] = languageVar.signal.map { lang =>
-    translations.getOrElse(lang, translations("en")).getOrElse(key, s"Missing key: $key")
+    translations
+      .getOrElse(lang, translations("en"))
+      .getOrElse(key, s"Missing key: $key")
   }
 
   // 4. UI Components
@@ -70,7 +72,7 @@ object Main {
       p(child.text <-- t("subtitle")),
       p(child.text <-- t("description")),
       a(
-        href("https://github.com/estelamaris/first"),
+        href("https://github.com/oswaldo/first"),
         target("_blank"),
         rel("noopener noreferrer"),
         cls("button"),
