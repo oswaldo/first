@@ -30,3 +30,6 @@ Thumbs.db
 .scala-build/
 .first/
 .then/
+
+# Build artifacts
+first-linux-x86_64

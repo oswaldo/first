@@ -47,21 +47,33 @@ by running the specified command for each requirement.
       /speckit.specify Enable installation via coursier so users can run 'cs install first'
       ```
 
-6. [ ] **Dogfooding**
+6. [ ] **Context Update Operations**
+    * **Description**: Implement an `update` command to modify existing fctx definitions without recreating them. This should support:
+      - `first update [context-name]` - Update the current (or specified) context with changes to tracked artifacts
+      - `first update [context-name] --add "new-file.txt,another-dir/"` - Add new artifacts to the context
+      - `first update [context-name] --forget "old-file.txt"` - Remove artifacts from the context
+      - Optional context name parameter (defaults to currently active context if omitted)
+      - Support for `--dry-run` and `--verbose` flags
+    * **Command**:
+      ```
+      /speckit.specify Implement 'update' command to modify existing fctx definitions, supporting add/forget operations and defaulting to the current context
+      ```
+
+7. [ ] **Dogfooding**
     * **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle 
     * **Command**:
       ```
       /speckit.specify Define the workflow for dogfooding 'first' to manage its own development environment from a separate repository
       ```
    
-7. [ ] **MVP gh-pages**
+8. [ ] **MVP gh-pages**
     * **Description**: Add gh-pages branch for a simple and elegant static page. Should research what is the current best practice
     * **Command**:
       ```
       /speckit.specify Establish a 'gh-pages' branch for a simple project website
       ```
 
-8. [ ] **Transactional File Operations**
+9. [ ] **Transactional File Operations**
     * **Description**: Specify a transactional approach for all file system operations (`load`, `swap`, `rm*`, etc.).
       Actions should be atomic, ensuring that an interrupted operation can be safely rolled back to leave the project in
       a clean, consistent state.
