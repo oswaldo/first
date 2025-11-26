@@ -19,17 +19,17 @@ The frontend is built entirely in Scala using [Scala.js](https://www.scala-js.or
 To build the website from the source files, run the following command from this branch root:
 
 ```bash
-scala-cli package --js js -o main.js --force
+scala-cli package site --js-mode release -o main.js --force
 ```
 
-This command compiles the Scala.js code located in `js` and packages it into a single `main.js` file in the same directory.
+This command compiles the Scala.js code located in `site` and packages it into a single `main.js` file in the same directory.
 
 ### Local Preview
 
 This project includes a simple web server written in Scala using [Cask](https://com-lihaoyi.github.io/cask/). To preview the website locally, run the server:
 
 ```bash
-scala-cli run jvm
+scala-cli run preview
 ```
 
 Then, open your browser and go to `http://localhost:8080`.
