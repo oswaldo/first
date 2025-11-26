@@ -34,7 +34,7 @@ jobs:
           - os: windows-latest
             target: windows-x86_64
             asset_name: first-windows-x86_64.exe
-            install_deps: choco install openssl
+            install_deps: vcpkg install curl:x64-windows libidn2:x64-windows openssl:x64-windows
 
     steps:
       - name: Checkout code
@@ -58,6 +58,15 @@ jobs:
           echo "LDFLAGS=-L$OPENSSL_ROOT/lib -L$LIBIDN2_ROOT/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I$OPENSSL_ROOT/include -I$LIBIDN2_ROOT/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$OPENSSL_ROOT/lib/pkgconfig:$LIBIDN2_ROOT/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Configure Windows Environment
+        if: runner.os == 'Windows'
+        run: |
+          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
+          $installed = "$vcpkgRoot\installed\x64-windows"
+          echo "LDFLAGS=-L$installed\lib" >> $env:GITHUB_ENV
+          echo "CPPFLAGS=-I$installed\include" >> $env:GITHUB_ENV
+          echo "$installed\bin" >> $env:GITHUB_PATH
 
       - name: Build Native Binary
         run: scala-cli package . --power --native --native-mode release-fast -o ${{ matrix.asset_name }} --force
