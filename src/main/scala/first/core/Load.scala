@@ -6,13 +6,13 @@ import first.config.ConfigReader
 import first.config.FctxDef
 import first.config.SwapAs
 import first.remote.Cache
-import first.remote.DownloaderClient
 import first.remote.Downloader
+import first.remote.DownloaderClient
 import first.remote.UrlResolver
 
 import java.net.URI
 
-import os.*
+import os._
 
 class Load(downloader: DownloaderClient = Downloader):
   private val cache = Cache()

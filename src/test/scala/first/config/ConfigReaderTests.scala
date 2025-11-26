@@ -2,7 +2,7 @@ package first.config
 
 import first.BaseSuite
 
-import os.*
+import os._
 
 class ConfigReaderTests extends BaseSuite:
 

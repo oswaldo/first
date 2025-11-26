@@ -1,8 +1,8 @@
 package first
 
-import scribe.*
-import scribe.file.*
-import scribe.format.*
+import scribe._
+import scribe.file._
+import scribe.format._
 
 object Logging:
   def configure(): Unit =

@@ -1,20 +1,20 @@
 package first.config
 
-import scala.annotation.tailrec
-import scala.jdk.CollectionConverters.*
-import scala.util.Try
-
-import cats.implicits.*
-import org.ekrich.config.Config
-import org.ekrich.config.ConfigFactory
-import os.*
-
-import first.remote.UrlResolver
 import first.remote.Cache
+import first.remote.Downloader
+import first.remote.DownloaderClient
+import first.remote.UrlResolver
+
 import java.net.URI
 
-import first.remote.DownloaderClient
-import first.remote.Downloader
+import scala.annotation.tailrec
+import scala.jdk.CollectionConverters._
+import scala.util.Try
+
+import cats.implicits._
+import org.ekrich.config.Config
+import org.ekrich.config.ConfigFactory
+import os._
 
 class ConfigReader(downloader: DownloaderClient = Downloader):
 
@@ -208,7 +208,8 @@ class ConfigReader(downloader: DownloaderClient = Downloader):
 
         allArtifactsEither.map { artifactsList =>
           val allArtifacts = artifactsList.flatten
-          FctxDef(contextName, mergedConfig, List.empty, allArtifacts)
+          val includes     = Try(mergedConfig.getStringList("includes").asScala.toList).getOrElse(List.empty)
+          FctxDef(contextName, mergedConfig, includes, allArtifacts)
         }
     }
 

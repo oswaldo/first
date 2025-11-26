@@ -35,10 +35,8 @@ class DownloaderTests extends BaseSuite:
 
   test("download with authentication includes auth token") {
     // Create a mock downloader that verifies auth was passed
-    var capturedEnv: Map[String, String] = Map.empty
     val mockDownloader = new DownloaderClient:
       def download(uri: java.net.URI, env: Map[String, String]): Either[String, Array[Byte]] =
-        capturedEnv = env
         Right(s"""{"authenticated": true, "token": "${env.getOrElse("FIRST_AUTH_TOKEN", "")}"}""".getBytes("UTF-8"))
       def checkExists(uri: java.net.URI, env: Map[String, String]): Boolean = true
 
@@ -48,7 +46,6 @@ class DownloaderTests extends BaseSuite:
     val result = mockDownloader.download(uri, env)
 
     assert(result.isRight)
-    assertEquals(capturedEnv.get("FIRST_AUTH_TOKEN"), Some(token))
     val body = new String(result.toOption.get, "UTF-8")
     assert(body.contains(token))
   }

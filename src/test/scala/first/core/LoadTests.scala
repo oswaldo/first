@@ -3,8 +3,10 @@ package first.core
 import first.BaseSuite
 import first.config.Artifact
 import first.remote.DownloaderClient
+
 import java.net.URI
-import os.*
+
+import os._
 
 class LoadTests extends BaseSuite:
 

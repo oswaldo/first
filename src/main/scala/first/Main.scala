@@ -17,31 +17,7 @@ object Main
       name = "first",
       header = "A tool for full context swapping",
       main =
-        sealed trait CliCommand
-        case class SaveCmd(opts: SaveCommand.SaveOpts) extends CliCommand
-        case class LoadCmd(opts: LoadCommand.LoadOpts) extends CliCommand
-        case class SwapCmd(opts: SwapCommand.SwapOpts) extends CliCommand
-        case object LsCmd                              extends CliCommand
-        case object HelpCmd                            extends CliCommand
-
-        val saveCmd =
-          Opts.subcommand("save", "Save a new fctx definition.")(SaveCommand.saveOpts).map(SaveCmd.apply)
-
-        val loadCmd =
-          Opts.subcommand("load", "Load an fctx.")(LoadCommand.loadOpts).map(LoadCmd.apply)
-
-        val swapCmd = Opts
-          .subcommand("swap", "Swap from the currently active fctx to a new one.")(SwapCommand.swapOpts)
-          .map(SwapCmd.apply)
-
-        val lsCmd = Opts.subcommand("ls", "List all available contexts.")(Opts.unit.map(_ => LsCmd))
-
-        val helpCmd = Opts.subcommand("help", "Display help information.")(Opts.unit.map(_ => HelpCmd))
-
-        val subcommands: Opts[CliCommand] = saveCmd orElse loadCmd orElse swapCmd orElse lsCmd orElse helpCmd
-
-        val atOpt = Opts.option[String]("at", "Specify the working directory.").orNone
-
+        import CliDef.*
         (subcommands, atOpt).mapN { (cmd, at) =>
           Logging.configure()
           val workingDir = at.map(p => os.Path(p)).getOrElse(os.pwd)
@@ -65,6 +41,7 @@ object Main
                   paths.foreach(path => scribe.info(s"  $path"))
                 }
             case HelpCmd =>
-              scribe.info("Help message will be displayed here.")
+              // CommandApp handles help automatically, but if explicitly called:
+              println(CliDef.command.showHelp)
         },
     )

@@ -74,3 +74,8 @@ This memories should be immediatelly available to Gemini:
 
 ## Recent Changes
 - 001-fctx-management-actions: Added Scala 3.3.4 + decline, sconfig, munit, scribe
+
+## Critical Rules
+- **Linting Order**: Always execute linting steps exactly as defined in `.specify/scripts/bash/lint.sh`.
+- **Diff Review**: If a diff shows too many format differences after linting, check with the user before proceeding.
+- **No Var**: Do not use `var`. Design algorithms so intermediate invalid or inconsistent values are not possible. Avoid `java.util.concurrent.atomic` unless absolutely necessary.

@@ -3,7 +3,7 @@ package first.remote
 import java.net.URI
 import java.time.Instant
 
-import upickle.default.*
+import upickle.default._
 
 object Codecs:
   given ReadWriter[URI] = readwriter[String].bimap[URI](

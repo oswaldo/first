@@ -37,6 +37,7 @@
 *   [ ] **Developer as Author**: Does the plan respect the developer as the primary author, using tools as support?
 *   [ ] **Vision-Driven Development**: Is the plan aligned with the project's high-level vision document?
 *   [ ] **Type Safety and Specificity**: Does the plan use appropriate and specific types for data structures?
+*   [ ] **Safe and Expressive Coding**: Does the plan avoid `null`s and exceptions, preferring `Option`, `Either`, and expressive logic?
 
 ## Project Structure
 

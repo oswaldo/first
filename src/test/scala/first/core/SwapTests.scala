@@ -11,7 +11,7 @@ import first.model.ActiveFctx
 import org.ekrich.config.ConfigFactory
 import os.Path
 import os.RelPath
-import upickle.default.*
+import upickle.default._
 
 implicit val fctxDefRW: ReadWriter[FctxDef] = macroRW
 

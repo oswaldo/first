@@ -4,7 +4,7 @@ import first.cli.SaveCommand.SaveOpts
 import first.config.Artifact
 import first.remote.UrlResolver
 
-import os.*
+import os._
 
 class Save:
   def run(opts: SaveOpts, context: Context): Unit =

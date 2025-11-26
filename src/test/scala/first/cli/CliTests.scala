@@ -19,7 +19,8 @@ class CliTests extends BaseSuite:
   override def beforeAll(): Unit =
     super.beforeAll()
     // Compile the project once
-    os.proc(Seq("scala-cli", "package", ".", "--native", "-o", cliExecutable.toString(), "-f")).call()
+    val scalaCli = if os.exists(os.Path("/usr/local/bin/scala-cli")) then "/usr/local/bin/scala-cli" else "scala-cli"
+    os.proc(Seq(scalaCli, "package", ".", "--native", "-o", cliExecutable.toString(), "-f")).call()
 
   override def afterAll(): Unit =
     os.remove.all(tempDir)

@@ -1,9 +1,9 @@
 # first Constitution
 <!--
-- Version: 1.4.0 -> 1.5.0
+- Version: 1.5.0 -> 1.6.0
 - Modified Principles: None
 - Added Principles:
-  - VI. Type Safety and Specificity
+  - VII. Safe and Expressive Coding
 - Removed Principles: None
 - Templates Requiring Updates:
   - ✅ .specify/templates/plan-template.md
@@ -31,6 +31,13 @@ Development must be guided by a clear, high-level vision document that precedes 
 ### VI. Type Safety and Specificity
 The project must use the most appropriate and specific types available for all properties and data structures. For instance, in Scala, time-related values should be represented using `java.time` types instead of generic types like `Long` or `String`. This enhances type safety, improves clarity, and leverages the type system to prevent common errors.
 
+### VII. Safe and Expressive Coding
+Code must be written to be readable and accessible, avoiding pitfalls like `null` references and unchecked exceptions.
+- **No Nulls**: Explicit use of `null` is forbidden. Use `Option` to represent optional values.
+- **No Exceptions**: Avoid throwing exceptions for flow control or error handling. Use `Either`, `Try`, or other functional error handling mechanisms.
+- **Expressive Logic**: Prefer properly named functions and pattern matching (`match`) or monadic chains (`map`, `flatMap`) over excessive nesting of `if/else` blocks.
+- **No Var**: Do not use `var`. Design algorithms so intermediate invalid or inconsistent values are not possible. Avoid `java.util.concurrent.atomic` unless absolutely necessary.
+
 ## Technical Constraints
 
 - **Initial Implementation**: The initial implementation of the `first` command-line tool must be a Scala CLI script that can be compiled to a native executable using Scala Native. This ensures a lightweight, fast-starting tool that is easy to distribute.
@@ -48,4 +55,4 @@ This constitution is the supreme governing document for the `first` project. All
 
 All pull requests and code reviews must include a check for compliance with this constitution. Any deviation from these principles must be explicitly justified and approved.
 
-**Version**: 1.5.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-11-09
+**Version**: 1.6.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-11-27

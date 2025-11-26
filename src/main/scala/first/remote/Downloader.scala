@@ -1,8 +1,8 @@
 package first.remote
 
-import scala.concurrent.duration.*
+import scala.concurrent.duration._
 
-import sttp.client4.*
+import sttp.client4._
 import sttp.model.Uri
 
 trait DownloaderClient:
