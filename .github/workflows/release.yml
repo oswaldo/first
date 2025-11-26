@@ -48,13 +48,19 @@ jobs:
       - name: Install Dependencies
         run: ${{ matrix.install_deps }}
 
-      - name: Build Native Binary
+      - name: Configure macOS Environment
+        if: runner.os == 'macOS'
         run: |
-          scala-cli package . \
-            --native \
-            --native-mode release-fast \
-            -o ${{ matrix.asset_name }} \
-            --force
+          OPENSSL_ROOT=$(brew --prefix openssl)
+          LIBIDN2_ROOT=$(brew --prefix libidn2)
+          echo "OPENSSL_ROOT=$OPENSSL_ROOT" >> $GITHUB_ENV
+          echo "LIBIDN2_ROOT=$LIBIDN2_ROOT" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$OPENSSL_ROOT/lib -L$LIBIDN2_ROOT/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$OPENSSL_ROOT/include -I$LIBIDN2_ROOT/include" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$OPENSSL_ROOT/lib/pkgconfig:$LIBIDN2_ROOT/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Build Native Binary
+        run: scala-cli package . --power --native --native-mode release-fast -o ${{ matrix.asset_name }} --force
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
