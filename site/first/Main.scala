@@ -2,6 +2,7 @@ package first
 
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main:
 
@@ -14,20 +15,23 @@ object Main:
       "whyTitle"     -> "Why first?",
       "whyHighlight" -> "Your repository is for <em>your</em> code, not your tools' config files.",
       "whyText" -> "Modern development has normalized an uncomfortable reality: every tool we adopt—IDEs, linters, CI systems, and now AI coding assistants—leaves its own debris in our repositories. When you want to try a different AI assistant, you shouldn't need to commit new config files to your repository.",
-      "feature1Title"   -> "Non-invasive",
-      "feature1Text"    -> "AI assistants and tools store their configs outside your repo.",
-      "feature2Title"   -> "Context Swapping",
-      "feature2Text"    -> "Switch entire development environments with one command.",
-      "feature3Title"   -> "Remote Contexts",
-      "feature3Text"    -> "Share team configurations via HTTP/HTTPS or GitHub.",
-      "quickStartTitle" -> "Quick Start",
-      "step1Title"      -> "Save your current context",
-      "step2Title"      -> "Load a saved context",
-      "step3Title"      -> "Swap to a different setup",
-      "techStackTitle"  -> "Tech Stack",
-      "techStackText"   -> "Built with Scala Native for near-instant startup times and zero JVM overhead.",
-      "footerText"      -> "Built with ❤️ using Scala Native and late-night coding sessions.",
-      "viewOnGithub"    -> "View on GitHub",
+      "feature1Title"       -> "Non-invasive",
+      "feature1Text"        -> "AI assistants and tools store their configs outside your repo.",
+      "feature2Title"       -> "Context Swapping",
+      "feature2Text"        -> "Switch entire development environments with one command.",
+      "feature3Title"       -> "Remote Contexts",
+      "feature3Text"        -> "Share team configurations via HTTP/HTTPS or GitHub.",
+      "quickStartTitle"     -> "Quick Start",
+      "step1Title"          -> "Save your current context",
+      "step2Title"          -> "Load a saved context",
+      "step3Title"          -> "Swap to a different setup",
+      "techStackTitle"      -> "Tech Stack",
+      "techStackText"       -> "Built with Scala Native for near-instant startup times and zero JVM overhead.",
+      "footerText"          -> "Built with ❤️ using Scala Native and late-night coding sessions.",
+      "viewOnGithub"        -> "View on GitHub",
+      "latestVersion"       -> "Latest Release:",
+      "supportedPlatforms"  -> "Supported Platforms",
+      "windowsNotSupported" -> "Windows support is coming soon!",
     ),
     "pt-br" -> Map(
       "title"   -> "first",
@@ -48,8 +52,11 @@ object Main:
       "step3Title"      -> "Troque para uma configuração diferente",
       "techStackTitle"  -> "Tech Stack",
       "techStackText" -> "Construído com Scala Native para tempos de inicialização quase instantâneos e zero overhead da JVM.",
-      "footerText"   -> "Construído com ❤️ usando Scala Native e sessões de codificação tarde da noite.",
-      "viewOnGithub" -> "Ver no GitHub",
+      "footerText"          -> "Construído com ❤️ usando Scala Native e sessões de codificação tarde da noite.",
+      "viewOnGithub"        -> "Ver no GitHub",
+      "latestVersion"       -> "Última Versão:",
+      "supportedPlatforms"  -> "Plataformas Suportadas",
+      "windowsNotSupported" -> "Suporte para Windows em breve!",
     ),
     "de" -> Map(
       "title"   -> "first",
@@ -58,20 +65,23 @@ object Main:
       "whyTitle"     -> "Warum first?",
       "whyHighlight" -> "Ihr Repository ist für <em>Ihren</em> Code, nicht für Konfigurationsdateien von Tools.",
       "whyText" -> "Die moderne Entwicklung hat eine unbequeme Realität normalisiert: Jedes Tool, das wir einführen – IDEs, Linters, CI-Systeme und jetzt KI-Coding-Assistenten – hinterlässt seine eigenen Spuren in unseren Repositories. Wenn Sie einen anderen KI-Assistenten ausprobieren möchten, sollten Sie keine neuen Konfigurationsdateien in Ihr Repository committen müssen.",
-      "feature1Title"   -> "Nicht-invasiv",
-      "feature1Text"    -> "KI-Assistenten und Tools speichern ihre Konfigurationen außerhalb Ihres Repos.",
-      "feature2Title"   -> "Kontextwechsel",
-      "feature2Text"    -> "Wechseln Sie ganze Entwicklungsumgebungen mit einem Befehl.",
-      "feature3Title"   -> "Remote-Kontexte",
-      "feature3Text"    -> "Teilen Sie Teamkonfigurationen über HTTP/HTTPS oder GitHub.",
-      "quickStartTitle" -> "Schnellstart",
-      "step1Title"      -> "Speichern Sie Ihren aktuellen Kontext",
-      "step2Title"      -> "Laden Sie einen gespeicherten Kontext",
-      "step3Title"      -> "Wechseln Sie zu einem anderen Setup",
-      "techStackTitle"  -> "Tech Stack",
-      "techStackText"   -> "Erstellt mit Scala Native für nahezu sofortige Startzeiten und null JVM-Overhead.",
-      "footerText"      -> "Erstellt mit ❤️ unter Verwendung von Scala Native und nächtlichen Coding-Sessions.",
-      "viewOnGithub"    -> "Auf GitHub ansehen",
+      "feature1Title"       -> "Nicht-invasiv",
+      "feature1Text"        -> "KI-Assistenten und Tools speichern ihre Konfigurationen außerhalb Ihres Repos.",
+      "feature2Title"       -> "Kontextwechsel",
+      "feature2Text"        -> "Wechseln Sie ganze Entwicklungsumgebungen mit einem Befehl.",
+      "feature3Title"       -> "Remote-Kontexte",
+      "feature3Text"        -> "Teilen Sie Teamkonfigurationen über HTTP/HTTPS oder GitHub.",
+      "quickStartTitle"     -> "Schnellstart",
+      "step1Title"          -> "Speichern Sie Ihren aktuellen Kontext",
+      "step2Title"          -> "Laden Sie einen gespeicherten Kontext",
+      "step3Title"          -> "Wechseln Sie zu einem anderen Setup",
+      "techStackTitle"      -> "Tech Stack",
+      "techStackText"       -> "Erstellt mit Scala Native für nahezu sofortige Startzeiten und null JVM-Overhead.",
+      "footerText"          -> "Erstellt mit ❤️ unter Verwendung von Scala Native und nächtlichen Coding-Sessions.",
+      "viewOnGithub"        -> "Auf GitHub ansehen",
+      "latestVersion"       -> "Neueste Version:",
+      "supportedPlatforms"  -> "Unterstützte Plattformen",
+      "windowsNotSupported" -> "Windows-Unterstützung kommt bald!",
     ),
   )
 
@@ -84,10 +94,25 @@ object Main:
 
   // 3. State Management
   val languageVar = Var(detectLanguage())
+  val releaseTag  = Var(Option.empty[String])
 
   def main(args: Array[String]): Unit =
     lazy val appContainer = dom.document.querySelector("#appContainer")
     renderOnDomContentLoaded(appContainer, appElement)
+    fetchLatestRelease()
+
+  def fetchLatestRelease(): Unit =
+    import scala.scalajs.js.Thenable.Implicits.*
+    dom
+      .fetch("https://api.github.com/repos/oswaldo/first/releases/latest")
+      .flatMap(_.json())
+      .map { json =>
+        val tag = json.asInstanceOf[scala.scalajs.js.Dynamic].tag_name.asInstanceOf[String]
+        releaseTag.set(Some(tag))
+      }
+      .recover { case e =>
+        dom.console.error(s"Failed to fetch release: $e")
+      }
 
   // Helper to get translated text reactively
   def t(key: String): Signal[String] = languageVar.signal.map { lang =>
@@ -138,6 +163,19 @@ object Main:
         h1(child.text <-- t("title")),
         p(cls("tagline"), child.text <-- t("tagline")),
         p(cls("description"), child.text <-- t("description")),
+
+        // Release Badge
+        div(
+          cls("release-badge"),
+          child <-- releaseTag.signal.map {
+            case Some(tag) =>
+              span(
+                cls("badge"),
+                child.text <-- t("latestVersion").map(l => s"$l $tag"),
+              )
+            case None => emptyNode
+          },
+        ),
         div(
           cls("install-box"),
           code("curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh"),
@@ -148,6 +186,31 @@ object Main:
                 .writeText("curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh")
             },
             i(cls("fas fa-copy")),
+          ),
+        ),
+
+        // Supported Platforms
+        div(
+          cls("platforms-section"),
+          h3(child.text <-- t("supportedPlatforms")),
+          div(
+            cls("platforms-icons"),
+            div(
+              cls("platform-icon"),
+              i(cls("fab fa-linux")),
+              span("Linux"),
+            ),
+            div(
+              cls("platform-icon"),
+              i(cls("fab fa-apple")),
+              span("macOS"),
+            ),
+            div(
+              cls("platform-icon", "disabled"),
+              i(cls("fab fa-windows")),
+              span("Windows"),
+              div(cls("tooltip"), child.text <-- t("windowsNotSupported")),
+            ),
           ),
         ),
       ),

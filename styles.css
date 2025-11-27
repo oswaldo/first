@@ -206,7 +206,7 @@ a:hover {
     h1 {
         font-size: 3.5em;
     }
-    
+
     .install-box {
         flex-direction: column;
         align-items: stretch;
@@ -267,7 +267,7 @@ a:hover {
     z-index: 99;
     border: 1px solid var(--secondary-accent);
     border-radius: 5px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
 }
 
@@ -292,4 +292,101 @@ a:hover {
 .select-item:hover {
     background-color: var(--secondary-accent);
     color: #fff;
+}
+
+/* Release Badge */
+.release-badge {
+    margin-bottom: 20px;
+}
+
+.badge {
+    background-color: var(--secondary-accent);
+    color: var(--accent-color);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+}
+
+/* Platforms Section */
+.platforms-section {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.platforms-section h3 {
+    font-size: 1.2em;
+    color: #aaa;
+    margin-bottom: 15px;
+}
+
+.platforms-icons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.platform-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-size: 0.9em;
+    transition: transform 0.3s;
+}
+
+.platform-icon i {
+    font-size: 2em;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.platform-icon:hover {
+    transform: translateY(-3px);
+}
+
+.platform-icon:hover i {
+    color: var(--accent-color);
+}
+
+.platform-icon.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.platform-icon.disabled:hover {
+    transform: none;
+}
+
+.platform-icon.disabled i {
+    color: #666;
+}
+
+/* Tooltip */
+.tooltip {
+    visibility: hidden;
+    width: 140px;
+    background-color: var(--surface-color);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    /* Position above */
+    left: 50%;
+    margin-left: -70px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8em;
+    border: 1px solid var(--secondary-accent);
+}
+
+.platform-icon.disabled:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
 }
