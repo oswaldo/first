@@ -36,6 +36,7 @@ object Translations:
       "latestVersion"       -> "Latest Release:",
       "supportedPlatforms"  -> "Supported Platforms",
       "windowsNotSupported" -> "Windows support is coming soon!",
+      "alphaWarning" -> "🚧 <strong>Alpha Stage</strong>: This project is currently in an experimental phase. It is primarily used for internal workflows. Expect frequent updates and limited support. Happy exploring! 🐉",
     ),
     "pt-br" -> Map(
       "title"   -> "first",
@@ -71,6 +72,7 @@ object Translations:
       "latestVersion"      -> "Última Versão:",
       "supportedPlatforms" -> "Plataformas Suportadas",
       "windowsNotSupported" -> "Suporte para Windows em breve!",
+      "alphaWarning" -> "🚧 <strong>Estágio Alfa</strong>: Este projeto está atualmente em uma fase experimental. É usado principalmente para fluxos de trabalho internos. Espere atualizações frequentes e suporte limitado. Boa exploração! 🐉",
     ),
     "de" -> Map(
       "title"   -> "first",
@@ -106,5 +108,6 @@ object Translations:
       "latestVersion"       -> "Neueste Version:",
       "supportedPlatforms"  -> "Unterstützte Plattformen",
       "windowsNotSupported" -> "Windows-Unterstützung kommt bald!",
+      "alphaWarning" -> "🚧 <strong>Alpha-Phase</strong>: Dieses Projekt befindet sich derzeit in einer experimentellen Phase. Es wird hauptsächlich für interne Arbeitsabläufe verwendet. Erwarten Sie häufige Updates und begrenzten Support. Viel Spaß beim Erkunden! 🐉",
     ),
   )

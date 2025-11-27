@@ -72,10 +72,17 @@ object Main:
       ),
     )
 
+  val alphaBanner: Element =
+    div(
+      cls("alpha-banner"),
+      inContext(el => t("alphaWarning") --> { html => el.ref.innerHTML = html }),
+    )
+
   val appElement: Element =
     div(
       cls("container"),
       languageSelector,
+      alphaBanner,
       headerTag(
         cls("hero"),
         h1(child.text <-- t("title")),
