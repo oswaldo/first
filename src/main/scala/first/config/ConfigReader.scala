@@ -8,13 +8,13 @@ import first.remote.UrlResolver
 import java.net.URI
 
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
-import cats.implicits._
+import cats.implicits.*
 import org.ekrich.config.Config
 import org.ekrich.config.ConfigFactory
-import os._
+import os.*
 
 class ConfigReader(downloader: DownloaderClient = Downloader):
 

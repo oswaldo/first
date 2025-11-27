@@ -1,7 +1,7 @@
 package first.cli
 
-import cats.implicits._
-import com.monovore.decline._
+import cats.implicits.*
+import com.monovore.decline.*
 
 object LoadCommand:
   case class LoadOpts(

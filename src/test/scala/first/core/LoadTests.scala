@@ -6,7 +6,7 @@ import first.remote.DownloaderClient
 
 import java.net.URI
 
-import os._
+import os.*
 
 class LoadTests extends BaseSuite:
 

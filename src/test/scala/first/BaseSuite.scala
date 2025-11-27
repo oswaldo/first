@@ -3,7 +3,7 @@ package first
 import munit.FunSuite
 import scribe.Level
 import scribe.Logger
-import scribe.format._
+import scribe.format.*
 
 abstract class BaseSuite extends FunSuite:
   override def beforeAll(): Unit =

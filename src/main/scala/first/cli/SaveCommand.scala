@@ -2,8 +2,8 @@ package first.cli
 
 import first.config.SwapAs
 
-import cats.implicits._
-import com.monovore.decline._
+import cats.implicits.*
+import com.monovore.decline.*
 
 object SaveCommand:
   case class SaveOpts(

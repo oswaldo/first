@@ -4,8 +4,8 @@ import first.cli.LoadCommand
 import first.cli.SaveCommand
 import first.cli.SwapCommand
 
-import cats.implicits._
-import com.monovore.decline._
+import cats.implicits.*
+import com.monovore.decline.*
 
 object CliDef:
   sealed trait CliCommand

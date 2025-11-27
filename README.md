@@ -59,6 +59,9 @@ FIRST_INSTALL_DIR=$HOME/bin curl -fsSL https://raw.githubusercontent.com/oswaldo
 **Manual installation:**
 Download the binary for your platform from the [releases page](https://github.com/oswaldo/first/releases) and place it in your PATH.
 
+> **Note on Windows Support:** Windows is currently not supported due to dependency issues with the native build. We are working on fixing this and expect to have Windows support in an upcoming release.
+
+
 ### Basic Usage
 
 ```bash

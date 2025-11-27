@@ -6,7 +6,7 @@ import first.remote.Codecs.given
 import java.net.URI
 import java.time.Instant
 
-import upickle.default._
+import upickle.default.*
 
 case class RemoteArtifact(
     sourceUrl: URI,

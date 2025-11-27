@@ -78,4 +78,15 @@ This memories should be immediatelly available to Gemini:
 ## Critical Rules
 - **Linting Order**: Always execute linting steps exactly as defined in `.specify/scripts/bash/lint.sh`.
 - **Diff Review**: If a diff shows too many format differences after linting, check with the user before proceeding.
-- **No Var**: Do not use `var`. Design algorithms so intermediate invalid or inconsistent values are not possible. Avoid `java.util.concurrent.atomic` unless absolutely necessary.
+- **Safe and Expressive Coding**:
+    - **No Nulls**: Explicit use of `null` is forbidden. Use `Option`.
+    - **No Exceptions**: Avoid throwing exceptions for flow control. Use `Either`, `Try`, or other functional error handling.
+    - **Expressive Logic**: Prefer `match`, `map`, `flatMap` over excessive `if/else` nesting.
+    - **No Var**: Do not use `var`. Design algorithms so intermediate invalid or inconsistent values are not possible. Avoid `java.util.concurrent.atomic` unless absolutely necessary.
+- **Type Safety**: Use specific types (e.g., `java.time` instead of `Long` for time) to enhance safety and clarity.
+- **Development Workflow**:
+    - **Atomic Features**: One feature per branch, resulting in a single comprehensive commit.
+    - **Linear History**: Feature branches **MUST** be rebased onto main. **No merge commits** (fast-forward only).
+    - **Roadmap Tracking**: Update `SPEC-ROADMAP.md` after merging.
+    - **Specification Gating**: `requirements.md` checklist must be reviewed before implementation.
+- **Governance**: The `.specify/memory/constitution.md` is the supreme governing document.

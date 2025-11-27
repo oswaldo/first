@@ -2,7 +2,7 @@ package first
 
 import org.ekrich.config.Config
 import org.ekrich.config.ConfigFactory
-import upickle.default._
+import upickle.default.*
 
 object TestPickle:
   implicit val configRW: ReadWriter[Config] =

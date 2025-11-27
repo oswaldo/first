@@ -1,12 +1,11 @@
 # first Constitution
 <!--
-- Version: 1.5.0 -> 1.6.0
+- Version: 1.6.0 -> 1.7.0
 - Modified Principles: None
 - Added Principles:
-  - VII. Safe and Expressive Coding
+  - Release Strategy (Versioning)
 - Removed Principles: None
-- Templates Requiring Updates:
-  - ✅ .specify/templates/plan-template.md
+- Templates Requiring Updates: None
 - Follow-up TODOs: None
 -->
 <!-- This constitution outlines the guiding principles and governance for the 'first' project. -->
@@ -50,9 +49,14 @@ Code must be written to be readable and accessible, avoiding pitfalls like `null
 - **Roadmap Tracking**: After a feature branch is merged, the `SPEC-ROADMAP.md` file must be updated to mark the corresponding feature as complete.
 - **Specification Gating**: Before implementation can begin, the feature's `requirements.md` checklist MUST be reviewed and marked as complete. This serves as the formal quality gate after the clarification step.
 
+## Release Strategy
+
+- **Versioning**: The project follows Semantic Versioning (SemVer).
+- **Initial Release**: The first set of released features will be version 0.1.0.
+
 ## Governance
 This constitution is the supreme governing document for the `first` project. All development practices, tools, and contributions must align with its principles. Amendments to this constitution require a formal proposal, review, and a clear migration plan for any affected components.
 
 All pull requests and code reviews must include a check for compliance with this constitution. Any deviation from these principles must be explicitly justified and approved.
 
-**Version**: 1.6.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-11-27
+**Version**: 1.7.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-11-27

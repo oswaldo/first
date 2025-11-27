@@ -12,7 +12,7 @@ import first.remote.UrlResolver
 
 import java.net.URI
 
-import os._
+import os.*
 
 class Load(downloader: DownloaderClient = Downloader):
   private val cache = Cache()

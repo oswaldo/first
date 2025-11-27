@@ -4,7 +4,7 @@ import first.BaseSuite
 import first.cli.SaveCommand.SaveOpts
 import first.config.SwapAs
 
-import os._
+import os.*
 
 class SaveTests extends BaseSuite:
 
