@@ -272,7 +272,7 @@ object Main:
           ),
           div(
             cls("benefit-card"),
-            i(cls("fas fa-code")),
+            i(cls("fas fa-shield-alt")),
             h4(child.text <-- t("benefit2Title")),
             p(child.text <-- t("benefit2Desc")),
           ),
