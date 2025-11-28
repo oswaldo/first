@@ -48,6 +48,11 @@ object Main:
     val isOpen = Var(false)
     div(
       cls("language-selector"),
+      inContext { el =>
+        windowEvents(_.onClick).map(_.target) --> { target =>
+          if isOpen.now() && !el.ref.contains(target.asInstanceOf[dom.Node]) then isOpen.set(false)
+        }
+      },
       div(
         cls("custom-select"),
         onClick --> (_ => isOpen.update(!_)),
@@ -62,7 +67,7 @@ object Main:
             div(
               cls("select-item"),
               s"$flag $name",
-              onClick.mapTo(code) --> { c =>
+              onClick.stopPropagation.mapTo(code) --> { c =>
                 languageVar.set(c)
                 isOpen.set(false)
               },
