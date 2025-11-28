@@ -1,5 +1,7 @@
 # first
 
+[![Website](https://img.shields.io/badge/website-live-brightgreen)](https://oswaldo.github.io/first/)
+
 ### Full Context Swapping for Developer Workflows
 
 A command-line tool that enables seamless switching between different development contexts and AI assistant configurations, keeping your projects clean from tool-specific clutter.
