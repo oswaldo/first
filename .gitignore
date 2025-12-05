@@ -18,3 +18,4 @@
 *.sjsir
 
 tmp/
+.first/
