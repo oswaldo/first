@@ -59,8 +59,9 @@ by running the specified command for each requirement.
       /speckit.specify Implement 'update' command to modify existing fctx definitions, supporting add/forget operations and defaulting to the current context
       ```
 
-7. [ ] **Dogfooding**
-    * **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle 
+7. [x] **Dogfooding** (DONE)
+    * **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle.
+    * **Status**: "External Artifacts" feature implemented in `save` command allows absolute paths, enabling this workflow.
     * **Command**:
       ```
       /speckit.specify Define the workflow for dogfooding 'first' to manage its own development environment from a separate repository

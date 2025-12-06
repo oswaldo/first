@@ -26,22 +26,28 @@ object Main
 
           scribe.info(s"Context: ${context.workingDir}, WorkingDir: $workingDir") // Test usage
 
-          cmd match
-            case SaveCmd(opts) => new Save().run(opts, context)
-            case LoadCmd(opts) => new Load().run(opts, context)
-            case SwapCmd(opts) => new Swap().run(opts, context)
-            case LsCmd =>
-              val reader   = new ConfigReader()
-              val contexts = reader.listAvailableContextsWithPaths(workingDir)
-              if contexts.isEmpty then scribe.info("No saved contexts found.")
-              else
-                scribe.info("Available contexts:")
-                contexts.foreach { case (c, paths) =>
-                  scribe.info(s"$c:")
-                  paths.foreach(path => scribe.info(s"  $path"))
-                }
-            case HelpCmd =>
-              // CommandApp handles help automatically, but if explicitly called:
-              println(CliDef.command.showHelp)
+          try
+            cmd match
+              case SaveCmd(opts) => new Save().run(opts, context)
+              case LoadCmd(opts) => new Load().run(opts, context)
+              case SwapCmd(opts) => new Swap().run(opts, context)
+              case LsCmd =>
+                val reader   = new ConfigReader()
+                val contexts = reader.listAvailableContextsWithPaths(workingDir)
+                if contexts.isEmpty then scribe.info("No saved contexts found.")
+                else
+                  scribe.info("Available contexts:")
+                  contexts.foreach { case (c, paths) =>
+                    scribe.info(s"$c:")
+                    paths.foreach(path => scribe.info(s"  $path"))
+                  }
+              case HelpCmd =>
+                // CommandApp handles help automatically, but if explicitly called:
+                println(CliDef.command.showHelp)
+          catch
+            case e: Exception =>
+              scribe.error(s"Command failed: ${e.getMessage}")
+              scribe.debug("Stack trace:", e)
+              System.exit(1)
         },
     )

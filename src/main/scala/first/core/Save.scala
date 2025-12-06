@@ -19,21 +19,32 @@ class Save:
 
     scribe.debug(s"Target fctx directory: $fctxConfDir")
 
-    val artifacts = opts.artifacts.map { p =>
+    // List of (Artifact Definition, Optional Source Path)
+    // Source Path is None for remote artifacts (not copied during save)
+    // Source Path is Some(p) for local/external artifacts
+    val processedArtifacts: List[(Artifact, Option[Path])] = opts.artifacts.map { p =>
       if UrlResolver.isRemote(p.toString) then
         scribe.debug(s"Processing remote artifact: $p")
-        Artifact(path = p.toString, swapAs = opts.swapAs)
+        (Artifact(path = p.toString, swapAs = opts.swapAs), None)
       else
-        val sourcePath   = workingDir / p
-        val relativePath = sourcePath.relativeTo(workingDir)
-        val md5          = if os.isFile(sourcePath) then Some(Hashing.calculateMd5(sourcePath)) else None
-        Artifact(path = relativePath.toString, swapAs = opts.swapAs, md5 = md5)
+        val pathObj = os.Path(p, workingDir)
+        val (configPath, sourcePath) =
+          if pathObj.startsWith(workingDir) then
+            // Inside workspace: preserve relative structure
+            (pathObj.relativeTo(workingDir).toString, pathObj)
+          else
+            // External: map to filename (flatten) and copy
+            scribe.debug(s"Processing external artifact: $pathObj")
+            (pathObj.last, pathObj)
+
+        val md5 = if os.isFile(sourcePath) then Some(Hashing.calculateMd5(sourcePath)) else None
+        (Artifact(path = configPath, swapAs = opts.swapAs, md5 = md5), Some(sourcePath))
     }
 
     val hoconContent =
-      if artifacts.nonEmpty then
-        artifacts
-          .map { a =>
+      if processedArtifacts.nonEmpty then
+        processedArtifacts
+          .map { case (a, _) =>
             val swapAsString = a.swapAs.toString.toLowerCase
             val md5String    = a.md5.map(md5 => s", md5 = \"$md5\"").getOrElse("")
             s"""  { path = "${a.path}", swapAs = "$swapAsString"$md5String }"""
@@ -44,12 +55,13 @@ class Save:
     if opts.dryRun then
       scribe.info("DRY RUN: The following actions would be taken:")
       scribe.info(s"- Ensure directory exists: $artifactsDir")
-      artifacts.foreach { artifact =>
-        if !UrlResolver.isRemote(artifact.path) then
-          val sourcePath = workingDir / os.RelPath(artifact.path)
-          val destPath   = artifactsDir / os.RelPath(artifact.path)
-          scribe.info(s"- Copy: $sourcePath -> $destPath")
-        else scribe.info(s"- Remote Artifact (no copy): ${artifact.path}")
+      processedArtifacts.foreach { case (artifact, sourcePathOpt) =>
+        sourcePathOpt match
+          case Some(sourcePath) =>
+            val destPath = artifactsDir / os.RelPath(artifact.path)
+            scribe.info(s"- Copy: $sourcePath -> $destPath")
+          case None =>
+            scribe.info(s"- Remote Artifact (no copy): ${artifact.path}")
       }
       if os.exists(fctxConfPath) then
         scribe.info(s"- Backup existing file: $fctxConfPath to ${fctxConfPath.toString + ".bak"}")
@@ -73,13 +85,14 @@ class Save:
 
       os.makeDir.all(artifactsDir)
       scribe.debug(s"Ensured artifacts directory exists: $artifactsDir")
-      artifacts.foreach { artifact =>
-        if !UrlResolver.isRemote(artifact.path) then
-          val sourcePath = workingDir / os.RelPath(artifact.path)
-          val destPath   = artifactsDir / os.RelPath(artifact.path)
-          os.copy(sourcePath, destPath, createFolders = true, replaceExisting = true)
-          scribe.debug(s"Copied artifact: $sourcePath -> $destPath")
-        else scribe.debug(s"Skipping copy for remote artifact: ${artifact.path}")
+      processedArtifacts.foreach { case (artifact, sourcePathOpt) =>
+        sourcePathOpt match
+          case Some(sourcePath) =>
+            val destPath = artifactsDir / os.RelPath(artifact.path)
+            os.copy(sourcePath, destPath, createFolders = true, replaceExisting = true)
+            scribe.debug(s"Copied artifact: $sourcePath -> $destPath")
+          case None =>
+            scribe.debug(s"Skipping copy for remote artifact: ${artifact.path}")
       }
 
       os.write(fctxConfPath, hoconContent)
