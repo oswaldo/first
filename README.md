@@ -21,11 +21,11 @@ first load shared-team-config
 
 ## Why first?
 
-**Your repository is for *your* code, not your tools' config files.**
+**Your repository is for _your_ code, not your tools' config files.**
 
 Modern development has normalized an uncomfortable reality: every tool we adopt—IDEs, linters, CI systems, and now AI coding assistants—leaves its own debris in our repositories. Configuration files accumulate like barnacles, each with its own lifecycle completely independent of your actual code.
 
-When you want to try a different AI assistant, you shouldn't need to commit new config files to your repository. When you switch from one development tool to another, your project shouldn't change. *Your code is your code.* The tools are just tools.
+When you want to try a different AI assistant, you shouldn't need to commit new config files to your repository. When you switch from one development tool to another, your project shouldn't change. _Your code is your code._ The tools are just tools.
 
 **But this tool doesn't exist...** so we built it.
 
@@ -33,7 +33,7 @@ When you want to try a different AI assistant, you shouldn't need to commit new 
 
 - **Non-invasive tooling**: AI assistants, linters, and other tools store their configs outside your repo
 - **Full context swapping**: Switch entire development environments with one command
-- **Independent lifecycles**: Your project's lifecycle is separate from your tools' lifecycles  
+- **Independent lifecycles**: Your project's lifecycle is separate from your tools' lifecycles
 - **Remote contexts**: Share team configurations via HTTP/HTTPS or GitHub without polluting repos
 - **True flexibility**: Experiment with different tools without leaving permanent traces
 
@@ -54,6 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh
 This installs the latest version to `~/.local/bin/first`.
 
 **Custom installation directory:**
+
 ```bash
 FIRST_INSTALL_DIR=$HOME/bin curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh
 ```
@@ -62,7 +63,6 @@ FIRST_INSTALL_DIR=$HOME/bin curl -fsSL https://raw.githubusercontent.com/oswaldo
 Download the binary for your platform from the [releases page](https://github.com/oswaldo/first/releases) and place it in your PATH.
 
 > **Note on Windows Support:** Windows is currently not supported due to dependency issues with the native build. We are working on fixing this and expect to have Windows support in an upcoming release.
-
 
 ### Basic Usage
 
@@ -91,6 +91,7 @@ first --help
 ### 🎯 Context Management
 
 Save, load, and swap between complete development environments:
+
 - Save current configurations as named contexts
 - Load contexts from local storage or remote sources
 - Atomic swap operations to seamlessly switch environments
@@ -98,6 +99,7 @@ Save, load, and swap between complete development environments:
 ### 🌐 Remote Contexts & Artifacts
 
 Access configurations from anywhere:
+
 - HTTP/HTTPS URLs for direct artifact access
 - GitHub shorthand: `gh://org/repo` expands automatically
 - Remote contexts are read-only and cached locally
@@ -106,6 +108,7 @@ Access configurations from anywhere:
 ### 📝 HOCON Configuration
 
 Contexts are defined in `.fctx` files using [HOCON](https://github.com/lightbend/config/blob/main/HOCON.md) format:
+
 - Human-readable and git-friendly
 - Supports includes and composition
 - Type-safe configuration with defaults
@@ -113,6 +116,7 @@ Contexts are defined in `.fctx` files using [HOCON](https://github.com/lightbend
 ### ⚡ Fast & Lightweight
 
 Built with Scala Native for:
+
 - Near-instant startup times
 - Small binary size (~10MB)
 - Zero JVM overhead
@@ -142,16 +146,19 @@ Contexts can include local files or remote resources. Remote artifacts from HTTP
 This project uses [scala-cli](https://scala-cli.virtuslab.org/) for building and testing.
 
 **Run without compiling:**
+
 ```bash
 scala-cli run . -- ls
 ```
 
 **Run tests:**
+
 ```bash
 scala-cli test .
 ```
 
 **Compile to native binary:**
+
 ```bash
 scala-cli package . --native -o tmp/first -f
 ```
@@ -159,6 +166,7 @@ scala-cli package . --native -o tmp/first -f
 > **Note:** The `tmp` directory is used to store the binary for testing purposes. You can replace it with any other directory of your choice. Also, this is a scala-native binary, so it will only work on the same platform as the one you compiled it on.
 
 **Code quality:**
+
 ```bash
 .specify/scripts/bash/lint.sh
 ```
@@ -196,9 +204,10 @@ See [`SPEC-ROADMAP.md`](SPEC-ROADMAP.md) for the complete roadmap and upcoming f
 
 Contributions are welcome! This project follows spec-driven development practices using the [GitHub Spec Kit](https://github.com/github/spec-kit).
 
-## License
+## License & Trademark
 
-This project is open source. See [`LICENSE`](LICENSE) for details.
+Code is [MIT licensed](LICENSE). The project logo and mascot are trademarks of [Oswaldo Dantas](https://github.com/oswaldo).
+See [TRADEMARK.md](TRADEMARK.md) for full usage policy.
 
 ---
 
