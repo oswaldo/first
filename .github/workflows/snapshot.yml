@@ -1,81 +1,32 @@
-name: Release
+name: Snapshot Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g. v1.0.0). Leave empty to auto-increment minor version.'
-        required: false
+  push:
+    branches: [ "main" ]
 
 permissions:
   contents: write
 
 jobs:
-  prepare-release:
-    name: Prepare Release
+  update-tag:
+    name: Update Nightly Tag
     runs-on: ubuntu-latest
-    outputs:
-      release_version: ${{ steps.create_tag.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create Tag and Release
-        id: create_tag
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_VERSION: ${{ inputs.version }}
+      - name: Update Tag
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          
-          # Find previous official version tag (ignoring nightly/snapshots)
-          PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")
-          echo "Previous Official Tag: '$PREV_TAG'"
-          
-          if [ -n "$INPUT_VERSION" ]; then
-            VERSION="$INPUT_VERSION"
-          else
-            if [ -z "$PREV_TAG" ]; then
-              VERSION="v0.1.0"
-            else
-              # Remove 'v' prefix
-              clean_ver=${PREV_TAG#v}
-              # Split by dot
-              IFS='.' read -r major minor patch <<< "$clean_ver"
-              
-              if [ -z "$major" ] || [ -z "$minor" ]; then
-                 echo "Error: Could not parse previous version '$PREV_TAG'. Please provide manual version."
-                 exit 1
-              fi
-              
-              new_minor=$((minor + 1))
-              VERSION="v$major.$new_minor.0"
-            fi
-            echo "Auto-incremented version to: $VERSION"
-          fi
-          
-          # Output version for next job
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
-          # Create and push new tag
-          git tag $VERSION
-          git push origin $VERSION
-          
-          # Construct arguments for release creation
-          NOTES_ARGS="--generate-notes"
-          if [ ! -z "$PREV_TAG" ]; then
-            NOTES_ARGS="$NOTES_ARGS --notes-start-tag $PREV_TAG"
-          fi
-          
-          # Create GitHub Release
-          gh release create $VERSION $NOTES_ARGS --title "$VERSION" --verify-tag
+          git tag -f nightly
+          git push origin nightly -f
 
   build-and-release:
     name: Build and Release
-    needs: prepare-release
+    needs: update-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -96,12 +47,13 @@ jobs:
             asset_name: first-macos-aarch64
             install_deps: |
               brew install libidn2 openssl
+          # Windows config omitted as in original
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_version }}
+          ref: nightly
 
       - name: Cache Coursier
         uses: coursier/cache-action@v6
@@ -129,8 +81,11 @@ jobs:
       - name: Build Native Binary
         run: scala-cli package . --native --native-mode release-fast -o ${{ matrix.asset_name }} --force
 
-      - name: Upload Release Asset
+      - name: Upload Snapshot Asset
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.prepare-release.outputs.release_version }}
+          tag_name: nightly
+          name: Nightly Build
+          prerelease: true
           files: ${{ matrix.asset_name }}
+          body: "Automatic nightly build from main."
