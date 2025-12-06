@@ -6,14 +6,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main:
 
-  def detectLanguage(): String =
-    val browserLang = dom.window.navigator.language.toLowerCase
-    if browserLang.startsWith("pt") then "pt-br"
-    else if browserLang.startsWith("de") then "de"
-    else "en"
+  import Translations.translate as t
 
-  val languageVar = Var(detectLanguage())
-  val releaseTag  = Var(Option.empty[String])
+  val releaseTag = Var(Option.empty[String])
 
   def main(args: Array[String]): Unit =
     lazy val appContainer = dom.document.querySelector("#appContainer")
@@ -33,11 +28,6 @@ object Main:
         dom.console.error(s"Failed to fetch release: $e")
       }
 
-  // Helper to get translated text reactively
-  def t(key: String): Signal[String] = languageVar.signal.map { lang =>
-    Translations.all.getOrElse(lang, Translations.all("en")).getOrElse(key, s"Missing key: $key")
-  }
-
   val languages = List(
     ("en", "English", "🇺🇸"),
     ("pt-br", "Português (BR)", "🇧🇷"),
@@ -56,7 +46,7 @@ object Main:
       div(
         cls("custom-select"),
         onClick --> (_ => isOpen.update(!_)),
-        child <-- languageVar.signal.map { currentCode =>
+        child <-- Translations.currentLanguage.signal.map { currentCode =>
           val (_, name, flag) = languages.find(_._1 == currentCode).getOrElse(languages.head)
           div(cls("select-selected"), s"$flag $name")
         },
@@ -68,7 +58,7 @@ object Main:
               cls("select-item"),
               s"$flag $name",
               onClick.stopPropagation.mapTo(code) --> { c =>
-                languageVar.set(c)
+                Translations.currentLanguage.set(c)
                 isOpen.set(false)
               },
             )
@@ -138,15 +128,26 @@ object Main:
           },
         ),
         div(
-          cls("install-box"),
-          code("curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh"),
-          button(
-            cls("copy-btn"),
-            onClick --> { _ =>
-              dom.window.navigator.clipboard
-                .writeText("curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh")
-            },
-            i(cls("fas fa-copy")),
+          cls("install-wrapper"),
+          div(
+            cls("install-box"),
+            code("curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh"),
+            button(
+              cls("copy-btn"),
+              onClick --> { _ =>
+                dom.window.navigator.clipboard
+                  .writeText("curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh")
+
+                val feedback = dom.document.querySelector(".copy-feedback")
+                feedback.classList.add("visible")
+                dom.window.setTimeout(() => feedback.classList.remove("visible"), 2000)
+              },
+              i(cls("fas fa-copy")),
+            ),
+          ),
+          div(
+            cls("copy-feedback"),
+            child.text <-- t("copiedToClipboard"),
           ),
         ),
 
@@ -289,14 +290,6 @@ object Main:
             p(child.text <-- t("benefit4Desc")),
           ),
         ),
-      ),
-      footerTag(
-        p(child.text <-- t("footerText")),
-        p(
-          a(
-            href("https://github.com/oswaldo/first"),
-            child.text <-- t("viewOnGithub"),
-          ),
-        ),
+        Footer.component,
       ),
     )

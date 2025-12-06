@@ -1,6 +1,22 @@
 package first
 
+import com.raquo.laminar.api.L.{*, given}
+import org.scalajs.dom
+
 object Translations:
+
+  def detectLanguage(): String =
+    val browserLang = dom.window.navigator.language.toLowerCase
+    if browserLang.startsWith("pt") then "pt-br"
+    else if browserLang.startsWith("de") then "de"
+    else "en"
+
+  val currentLanguage = Var(detectLanguage())
+
+  def translate(key: String): Signal[String] = currentLanguage.signal.map { lang =>
+    all.getOrElse(lang, all("en")).getOrElse(key, s"Missing key: $key")
+  }
+
   val all = Map(
     "en" -> Map(
       "title"   -> "first",
@@ -36,7 +52,10 @@ object Translations:
       "latestVersion"       -> "Latest Release:",
       "supportedPlatforms"  -> "Supported Platforms",
       "windowsNotSupported" -> "Windows support is coming soon!",
+      "licenseNotice"       -> "Code licensed under MIT.",
+      "trademarkPolicy"     -> "Trademark Policy",
       "alphaWarning" -> "🚧 <strong>Alpha Stage</strong>: This project is currently in an experimental phase. It is primarily used for internal workflows. Expect frequent updates and limited support. Happy exploring! 🐉",
+      "copiedToClipboard" -> "Copied!",
     ),
     "pt-br" -> Map(
       "title"   -> "first",
@@ -72,7 +91,10 @@ object Translations:
       "latestVersion"      -> "Última Versão:",
       "supportedPlatforms" -> "Plataformas Suportadas",
       "windowsNotSupported" -> "Suporte para Windows em breve!",
+      "licenseNotice"       -> "Código licenciado sob MIT.",
+      "trademarkPolicy"     -> "Política de Marcas",
       "alphaWarning" -> "🚧 <strong>Estágio Alfa</strong>: Este projeto está atualmente em uma fase experimental. É usado principalmente para fluxos de trabalho internos. Espere atualizações frequentes e suporte limitado. Boa exploração! 🐉",
+      "copiedToClipboard" -> "Copiado!",
     ),
     "de" -> Map(
       "title"   -> "first",
@@ -108,6 +130,9 @@ object Translations:
       "latestVersion"       -> "Neueste Version:",
       "supportedPlatforms"  -> "Unterstützte Plattformen",
       "windowsNotSupported" -> "Windows-Unterstützung kommt bald!",
+      "licenseNotice"       -> "Code unter MIT lizenziert.",
+      "trademarkPolicy"     -> "Markenrichtlinie",
       "alphaWarning" -> "🚧 <strong>Alpha-Phase</strong>: Dieses Projekt befindet sich derzeit in einer experimentellen Phase. Es wird hauptsächlich für interne Arbeitsabläufe verwendet. Erwarten Sie häufige Updates und begrenzten Support. Viel Spaß beim Erkunden! 🐉",
+      "copiedToClipboard" -> "Kopiert!",
     ),
   )
