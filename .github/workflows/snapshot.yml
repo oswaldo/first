@@ -2,7 +2,13 @@ name: Snapshot Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - "TRADEMARK"
+      - ".gitignore"
+      - ".github/ISSUE_TEMPLATE/**"
 
 permissions:
   contents: write
@@ -11,6 +17,7 @@ jobs:
   update-tag:
     name: Update Nightly Tag
     runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'project:') && !startsWith(github.event.head_commit.message, 'docs:')"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,7 +54,7 @@ jobs:
             asset_name: first-macos-aarch64
             install_deps: |
               brew install libidn2 openssl
-          # Windows config omitted as in original
+          # Windows config omitted
 
     steps:
       - name: Checkout code
