@@ -16,6 +16,7 @@ class SaveTests extends BaseSuite:
     val opts = SaveOpts(
       contextName = contextName,
       artifacts = List(remoteUrl),
+      includes = Nil,
       swapAs = SwapAs.Symlink,
       force = false,
       dryRun = false,
@@ -50,6 +51,7 @@ class SaveTests extends BaseSuite:
     val opts = SaveOpts(
       contextName = contextName,
       artifacts = List(externalFile.toString),
+      includes = Nil,
       swapAs = SwapAs.Symlink,
       force = false,
       dryRun = false,
@@ -73,3 +75,24 @@ class SaveTests extends BaseSuite:
 
     assert(os.exists(storedFile))
     assert(os.read(storedFile) == "external content")
+
+  test("save should handle includes"):
+    val tempDir     = os.temp.dir()
+    val contextName = "includes-save-test"
+
+    val opts = SaveOpts(
+      contextName = contextName,
+      artifacts = Nil,
+      includes = List("base", "common"),
+      swapAs = SwapAs.Symlink,
+      force = false,
+      dryRun = false,
+      verbose = false,
+    )
+
+    val context = new Context(tempDir)
+    new Save().run(opts, context)
+
+    val fctxDefPath = tempDir / ".then" / contextName / "fctx-def.conf"
+    val content     = os.read(fctxDefPath)
+    assert(content.contains("""includes = ["base", "common"]"""))

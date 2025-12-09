@@ -12,7 +12,7 @@
 //> using dependency com.outr::scribe-file::3.17.0
 //> using dependency com.outr::scribe::3.17.0
 //> using dependency com.softwaremill.sttp.client4::core::4.0.13
-//> using dependency org.ekrich::sconfig::1.12.0
+//> using dependency org.ekrich::sconfig::1.12.3
 //> using dependency org.scalameta::munit::1.2.1
 
 //> using buildInfo

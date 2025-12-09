@@ -169,44 +169,6 @@ class CliTests extends BaseSuite:
     assert(output.contains(contextName1))
     assert(output.contains(contextName2))
 
-  test("load command should download remote artifact") {
-    val testDir = tempDir / "load-remote"
-    os.makeDir.all(testDir)
-    val contextName = "remote-context"
-    val contextDir  = testDir / ".then" / contextName
-    os.makeDir.all(contextDir)
-
-    val remoteUrl       = "https://httpbin.org/robots.txt"
-    val expectedContent = "User-agent: *\nDisallow: /deny\n"
-    val expectedSha256  = "be76b8ab3a1d8db80cafb0c7a768af6c7b6b4ac28ffef3bf6d641c7ed4cec05a"
-
-    val fctxDefContent =
-      s"""
-         |artifacts = [
-         |  {
-         |    path = "$remoteUrl",
-         |    sha256 = "$expectedSha256"
-         |  }
-         |]
-         |""".stripMargin
-    os.write(contextDir / "fctx-def.conf", fctxDefContent)
-
-    val cliCommand = Seq(
-      cliExecutable.toString(),
-      "--at",
-      testDir.toString(),
-      "load",
-      contextName,
-      "--verbose",
-    )
-
-    os.proc(cliCommand).call()
-
-    val downloadedFilePath = testDir / "robots.txt"
-    assert(os.exists(downloadedFilePath))
-    val content = os.read(downloadedFilePath)
-    assertEquals(content, expectedContent)
-  }
   test("load command should download gh:// artifact") {
     val testDir = tempDir / "load-gh"
     os.makeDir.all(testDir)

@@ -9,6 +9,7 @@ object SaveCommand:
   case class SaveOpts(
       contextName: String,
       artifacts: List[String],
+      includes: List[String],
       swapAs: SwapAs,
       force: Boolean,
       dryRun: Boolean,
@@ -24,6 +25,13 @@ object SaveCommand:
       )
       .map(_.split(',').filter(_.nonEmpty).toList)
       .withDefault(List.empty)
+    val includesOpt = Opts
+      .option[String](
+        long = "includes",
+        help = "A comma-separated list of fctx names or paths to include.",
+      )
+      .map(_.split(',').filter(_.nonEmpty).toList)
+      .withDefault(List.empty)
     val swapAsOpt = Opts
       .option[String](
         long = "swap-as",
@@ -35,4 +43,4 @@ object SaveCommand:
     val dryRunOpt  = Opts.flag(long = "dry-run", help = "Show what would be done without actually doing it.").orFalse
     val verboseOpt = Opts.flag(long = "verbose", short = "v", help = "Enable verbose output.").orFalse
 
-    (contextNameOpts, artifactsOpt, swapAsOpt, forceOpt, dryRunOpt, verboseOpt).mapN(SaveOpts.apply)
+    (contextNameOpts, artifactsOpt, includesOpt, swapAsOpt, forceOpt, dryRunOpt, verboseOpt).mapN(SaveOpts.apply)
