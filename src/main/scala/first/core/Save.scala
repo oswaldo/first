@@ -1,8 +1,6 @@
 package first.core
 
 import first.cli.SaveCommand.SaveOpts
-import first.config.Artifact
-import first.remote.UrlResolver
 
 import os.*
 
@@ -22,35 +20,20 @@ class Save:
     // List of (Artifact Definition, Optional Source Path)
     // Source Path is None for remote artifacts (not copied during save)
     // Source Path is Some(p) for local/external artifacts
-    val processedArtifacts: List[(Artifact, Option[Path])] = opts.artifacts.map { p =>
-      if UrlResolver.isRemote(p.toString) then
-        scribe.debug(s"Processing remote artifact: $p")
-        (Artifact(path = p.toString, swapAs = opts.swapAs), None)
-      else
-        val pathObj = os.Path(p, workingDir)
-        val (configPath, sourcePath) =
-          if pathObj.startsWith(workingDir) then
-            // Inside workspace: preserve relative structure
-            (pathObj.relativeTo(workingDir).toString, pathObj)
-          else
-            // External: map to filename (flatten) and copy
-            scribe.debug(s"Processing external artifact: $pathObj")
-            (pathObj.last, pathObj)
+    // List of (Artifact Definition, Optional Source Path)
+    // Source Path is None for remote artifacts (not copied during save)
+    // Source Path is Some(p) for local/external artifacts
+    val processedArtifacts = ArtifactProcessor.process(opts.artifacts, workingDir, opts.swapAs)
 
-        val md5 = if os.isFile(sourcePath) then Some(Hashing.calculateMd5(sourcePath)) else None
-        (Artifact(path = configPath, swapAs = opts.swapAs, md5 = md5), Some(sourcePath))
-    }
+    // Create FctxDef for writing (empty config/includes for now as Save overwrites)
+    val fctxDef = first.config.FctxDef(
+      name = opts.contextName,
+      config = org.ekrich.config.ConfigFactory.empty("save-command-generated"),
+      includes = opts.includes,
+      artifacts = processedArtifacts.map(_._1),
+    )
 
-    val hoconContent =
-      if processedArtifacts.nonEmpty then
-        processedArtifacts
-          .map { case (a, _) =>
-            val swapAsString = a.swapAs.toString.toLowerCase
-            val md5String    = a.md5.map(md5 => s", md5 = \"$md5\"").getOrElse("")
-            s"""  { path = "${a.path}", swapAs = "$swapAsString"$md5String }"""
-          }
-          .mkString("artifacts = [\n", ",\n", "\n]")
-      else "artifacts = []"
+    val hoconContent = FctxWriter.toHocon(fctxDef)
 
     if opts.dryRun then
       scribe.info("DRY RUN: The following actions would be taken:")

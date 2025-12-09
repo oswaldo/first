@@ -137,7 +137,7 @@ class ConfigReader(downloader: DownloaderClient = Downloader):
     else
       val newVisited      = visited + contextName
       val discoveredPaths = discoverFctxDefPaths(contextName, startPath)
-      discoveredPaths
+      discoveredPaths.reverse
         .traverse { path =>
           loadConfigRecursive(path.toString, startPath, newVisited)
         }

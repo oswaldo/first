@@ -71,6 +71,8 @@ This memories should be immediatelly available to Gemini:
 - Scala 3.3.4 + `com.softwaremill.sttp.client4::core` (HTTP), `com.monovore::decline` (CLI), `com.lihaoyi::upickle` (Config), `com.lihaoyi::os-lib` (Filesystem), `org.ekrich::sconfig` (Config), `com.outr::scribe` (Logging), `org.scalameta::munit` (Testing) (004-remote-fctx-artifacts)
 - Local filesystem at `~/.first/cache/` for content-addressable caching. (004-remote-fctx-artifacts)
 - Scala 3.3.4 (Scala Native 0.5.9) + decline (CLI), os-lib (FS), upickle (JSON), sttp (HTTP) (005-coursier-install)
+- Scala 3.3.4 + `com.monovore::decline` (CLI), `com.lihaoyi::os-lib` (File Ops), `org.ekrich::sconfig` (HOCON) (008-update-fctx)
+- Filesystem (HOCON config files) (008-update-fctx)
 
 ## Recent Changes
 - 001-fctx-management-actions: Added Scala 3.3.4 + decline, sconfig, munit, scribe

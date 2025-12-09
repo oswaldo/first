@@ -29,15 +29,16 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-*   [ ] **Non-Intrusive Tooling**: Does the plan avoid adding tool-specific configuration files to the repository?
-*   [ ] **Full Context Swapping**: Does the plan account for the ability to switch development contexts?
-*   [ ] **Separation of Concerns**: Is there a clear separation between the project's source code and development tools?
-*   [ ] **Developer as Author**: Does the plan respect the developer as the primary author, using tools as support?
-*   [ ] **Vision-Driven Development**: Is the plan aligned with the project's high-level vision document?
-*   [ ] **Type Safety and Specificity**: Does the plan use appropriate and specific types for data structures?
-*   [ ] **Safe and Expressive Coding**: Does the plan avoid `null`s and exceptions, preferring `Option`, `Either`, and expressive logic?
+- [ ] **Non-Intrusive Tooling**: Does the plan avoid adding tool-specific configuration files to the repository?
+- [ ] **Full Context Swapping**: Does the plan account for the ability to switch development contexts?
+- [ ] **Separation of Concerns**: Is there a clear separation between the project's source code and development tools?
+- [ ] **Developer as Author**: Does the plan respect the developer as the primary author, using tools as support?
+- [ ] **Vision-Driven Development**: Is the plan aligned with the project's high-level vision document?
+- [ ] **Type Safety and Specificity**: Does the plan use appropriate and specific types for data structures?
+- [ ] **Safe and Expressive Coding**: Does the plan avoid `null`s and exceptions, preferring `Option`, `Either`, and expressive logic?
+- [ ] **Reuse First Architecture**: Does the plan analyze existing code for reusable components and avoid duplication?
 
 ## Project Structure
 
@@ -54,6 +55,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -104,7 +106,7 @@ directories captured above]
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |

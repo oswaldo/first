@@ -33,3 +33,7 @@ Thumbs.db
 
 # Build artifacts
 first-linux-x86_64
+
+scoverage.coverage
+scoverage.measurements.*
+*.semanticdb
