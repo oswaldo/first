@@ -111,7 +111,14 @@ object Main:
       alphaBanner,
       headerTag(
         cls("hero"),
-        h1(child.text <-- t("title")),
+        h1(
+          img(
+            src("https://raw.githubusercontent.com/oswaldo/first/refs/heads/main/images/first.png"),
+            alt("First Project Logo: An amorphous smiling ghost with the name 'first' written below it"),
+            cls("project-logo"),
+            width("150px"), // Adjust size as needed, assumed value
+          ),
+        ),
         p(cls("tagline"), child.text <-- t("tagline")),
         p(cls("description"), child.text <-- t("description")),
 
