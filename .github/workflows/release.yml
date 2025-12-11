@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. v1.0.0). Leave empty to auto-increment minor version.'
+        description: "Release version (e.g. v1.0.0). Leave empty to auto-increment minor version."
         required: false
 
 permissions:
@@ -30,11 +30,11 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          
+
           # Find previous official version tag (ignoring nightly/snapshots)
           PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")
           echo "Previous Official Tag: '$PREV_TAG'"
-          
+
           if [ -n "$INPUT_VERSION" ]; then
             VERSION="$INPUT_VERSION"
           else
@@ -56,20 +56,20 @@ jobs:
             fi
             echo "Auto-incremented version to: $VERSION"
           fi
-          
+
           # Output version for next job
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
+
           # Create and push new tag
           git tag $VERSION
           git push origin $VERSION
-          
+
           # Construct arguments for release creation
           NOTES_ARGS="--generate-notes"
           if [ ! -z "$PREV_TAG" ]; then
             NOTES_ARGS="$NOTES_ARGS --notes-start-tag $PREV_TAG"
           fi
-          
+
           # Create GitHub Release
           gh release create $VERSION $NOTES_ARGS --title "$VERSION" --verify-tag
 
@@ -127,7 +127,7 @@ jobs:
           echo "PKG_CONFIG_PATH=$OPENSSL_ROOT/lib/pkgconfig:$LIBIDN2_ROOT/lib/pkgconfig" >> $GITHUB_ENV
 
       - name: Build Native Binary
-        run: scala-cli package . --native --native-mode release-fast -o ${{ matrix.asset_name }} --force
+        run: scala-cli package . --native --native-mode release-full -o ${{ matrix.asset_name }} --force
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
