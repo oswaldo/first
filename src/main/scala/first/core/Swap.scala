@@ -12,7 +12,7 @@ class Swap:
       scribe.debug("Verbose logging enabled.")
 
     import context.workingDir
-    val configReader = new ConfigReader()
+    val configReader = ConfigReader()
 
     val activeFctxOpt = context.state.activeFctx
     if activeFctxOpt.isEmpty then

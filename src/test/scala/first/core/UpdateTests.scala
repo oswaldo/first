@@ -1,6 +1,7 @@
 package first.core
 
 import first.cli.UpdateCommand.UpdateOpts
+import first.config.ConfigReader
 import first.config.SwapAs
 import first.model.ActiveFctx
 
@@ -31,6 +32,7 @@ class UpdateTests extends FunSuite:
       swapAs = SwapAs.Copy,
       dryRun = false,
       verbose = false,
+      link = false,
     )
 
     new Update().run(opts, context)
@@ -66,6 +68,7 @@ class UpdateTests extends FunSuite:
       swapAs = SwapAs.Copy,
       dryRun = false,
       verbose = false,
+      link = false,
     )
 
     new Update().run(opts, context)
@@ -100,6 +103,7 @@ class UpdateTests extends FunSuite:
       swapAs = SwapAs.Copy,
       dryRun = false,
       verbose = false,
+      link = false,
     )
 
     new Update().run(opts, context)
@@ -134,6 +138,7 @@ class UpdateTests extends FunSuite:
       swapAs = SwapAs.Copy,
       dryRun = false,
       verbose = false,
+      link = false,
     )
 
     new Update().run(opts, context)
@@ -173,6 +178,7 @@ class UpdateTests extends FunSuite:
       swapAs = SwapAs.Copy,
       dryRun = false,
       verbose = false,
+      link = false,
     )
 
     new Update().run(opts, context)
@@ -207,6 +213,7 @@ class UpdateTests extends FunSuite:
       swapAs = SwapAs.Copy,
       dryRun = false,
       verbose = false,
+      link = false,
     )
 
     new Update().run(opts, context)
@@ -214,4 +221,79 @@ class UpdateTests extends FunSuite:
     val confContent = os.read(fctxDir / "fctx-def.conf")
     assert(confContent.contains("""includes = ["keep", "new-inc"]"""))
     assert(!confContent.contains("remove"))
+  }
+
+  test("Update --link links added artifacts") {
+    if !scala.util.Properties.isWin then
+      val wd       = os.temp.dir()
+      val context  = new Context(wd)
+      val fctxName = "link-update"
+      val fctxDir  = wd / ".then" / fctxName
+      os.makeDir.all(fctxDir)
+      os.write(fctxDir / "fctx-def.conf", """artifacts = []""")
+
+      val newFile = wd / "link-me.txt"
+      os.write(newFile, "content")
+
+      val opts = UpdateOpts(
+        contextName = Some(fctxName),
+        add = List(newFile.toString),
+        forget = Nil,
+        includes = Nil,
+        forgetIncludes = Nil,
+        swapAs = SwapAs.Symlink,
+        dryRun = false,
+        verbose = false,
+        link = true,
+      )
+
+      new Update().run(opts, context)
+
+      assert(os.isLink(newFile))
+      assert(os.read(newFile) == "content")
+      val target = os.readLink(newFile)
+      assert(target.toString.contains(".then/link-update/artifacts/link-me.txt"))
+  }
+
+  test("Update works for custom location context") {
+    val wd      = os.temp.dir()
+    val context = new Context(wd)
+    // Custom location NOT in .then
+    val customDir = wd / "custom-loc"
+    os.makeDir.all(customDir)
+    os.write(
+      customDir / "fctx-def.conf",
+      """
+        |name = "custom-loc"
+        |artifacts = []
+      """.stripMargin,
+    )
+
+    // Use a ConfigReader with the temp dir as home to ensure it finds the GlobalConfig we are about to write
+    val configReader = ConfigReader(userHome = wd)
+
+    // Register it in a local GlobalConfig (which writes to wd/.first/first.conf)
+    val globalConfig = first.config.GlobalConfig(wd)
+    globalConfig.addContext(customDir / "fctx-def.conf")
+
+    val newFile = wd / "custom.txt"
+    os.write(newFile, "custom")
+
+    val opts = UpdateOpts(
+      contextName = Some("custom-loc"),
+      add = List(newFile.toString),
+      forget = Nil,
+      includes = Nil,
+      forgetIncludes = Nil,
+      swapAs = SwapAs.Copy,
+      dryRun = false,
+      verbose = false,
+      link = false,
+    )
+
+    // Inject the reader into Update
+    assert(Update(configReader).run(opts, context).isRight)
+
+    assert(os.exists(customDir / "artifacts" / "custom.txt"))
+    assert(os.read(customDir / "fctx-def.conf").contains("custom.txt"))
   }

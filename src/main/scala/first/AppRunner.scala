@@ -5,6 +5,7 @@ import first.config.ConfigReader
 import first.core.Context
 import first.core.ExitHandler
 import first.core.Load
+import first.core.Mv
 import first.core.PlatformExitHandler
 import first.core.Save
 import first.core.Swap
@@ -16,17 +17,18 @@ class AppRunner(exitHandler: ExitHandler = PlatformExitHandler):
     try
       val workingDir = at.map(p => os.Path(p)).getOrElse(os.pwd)
       at.foreach(path => System.setProperty("user.dir", os.Path(path).toString))
-      val context = new Context(workingDir)
+      val context = Context(workingDir)
 
       scribe.info(s"Context: ${context.workingDir}, WorkingDir: $workingDir")
 
       cmd match
-        case SaveCmd(opts)   => new Save().run(opts, context)
-        case LoadCmd(opts)   => new Load().run(opts, context)
-        case SwapCmd(opts)   => new Swap().run(opts, context)
-        case UpdateCmd(opts) => new Update().run(opts, context)
+        case SaveCmd(opts)   => Save().run(opts, context).fold(throw _, identity)
+        case LoadCmd(opts)   => Load().run(opts, context)
+        case SwapCmd(opts)   => Swap().run(opts, context)
+        case UpdateCmd(opts) => Update().run(opts, context).fold(throw _, identity)
+        case MvCmd(opts)     => Mv().run(opts, context).fold(throw _, identity)
         case LsCmd =>
-          val reader   = new ConfigReader()
+          val reader   = ConfigReader()
           val contexts = reader.listAvailableContextsWithPaths(workingDir)
           if contexts.isEmpty then scribe.info("No saved contexts found.")
           else

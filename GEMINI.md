@@ -73,6 +73,7 @@ This memories should be immediatelly available to Gemini:
 - Scala 3.3.4 (Scala Native 0.5.9) + decline (CLI), os-lib (FS), upickle (JSON), sttp (HTTP) (005-coursier-install)
 - Scala 3.3.4 + `com.monovore::decline` (CLI), `com.lihaoyi::os-lib` (File Ops), `org.ekrich::sconfig` (HOCON) (008-update-fctx)
 - Filesystem (HOCON config files) (008-update-fctx)
+- Scala 3.3.4 (Scala Native 0.5.x) (009-fctx-migration)
 
 ## Recent Changes
 - 001-fctx-management-actions: Added Scala 3.3.4 + decline, sconfig, munit, scribe

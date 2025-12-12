@@ -4,6 +4,8 @@ import first.config.FctxDef
 
 object FctxWriter:
   def toHocon(fctxDef: FctxDef): String =
+    val name = s"name = \"${fctxDef.name}\"\n\n"
+
     val includes =
       if fctxDef.includes.nonEmpty then
         val listContent = fctxDef.includes.map(i => s"\"$i\"").mkString(", ")
@@ -21,4 +23,4 @@ object FctxWriter:
           .mkString("artifacts = [\n", ",\n", "\n]")
       else "artifacts = []"
 
-    includes + artifacts
+    name + includes + artifacts

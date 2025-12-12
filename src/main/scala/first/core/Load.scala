@@ -76,7 +76,7 @@ class Load(downloader: DownloaderClient = Downloader):
       scribe.debug("Verbose logging enabled.")
 
     import context.workingDir
-    val configReader = new ConfigReader()
+    val configReader = ConfigReader()
     val fctxConfDir  = workingDir / ".then" / opts.contextName
     val artifactsDir = fctxConfDir / "artifacts"
 
