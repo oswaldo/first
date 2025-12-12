@@ -13,6 +13,7 @@ object UpdateCommand:
       swapAs: first.config.SwapAs,
       dryRun: Boolean = false,
       verbose: Boolean = false,
+      link: Boolean = false,
   )
 
   val updateOpts: Opts[UpdateOpts] =
@@ -52,4 +53,8 @@ object UpdateCommand:
       .flag("verbose", short = "v", help = "Enable verbose logging")
       .orFalse
 
-    (contextName, add, forget, includes, forgetIncludes, swapAs, dryRun, verbose).mapN(UpdateOpts.apply)
+    val link = Opts
+      .flag("link", help = "Replace added files with symlinks to the artifacts")
+      .orFalse
+
+    (contextName, add, forget, includes, forgetIncludes, swapAs, dryRun, verbose, link).mapN(UpdateOpts.apply)

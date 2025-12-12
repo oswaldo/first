@@ -4,6 +4,7 @@ import first.config.SwapAs
 
 import cats.implicits.*
 import com.monovore.decline.*
+import os.Path
 
 object SaveCommand:
   case class SaveOpts(
@@ -14,10 +15,14 @@ object SaveCommand:
       force: Boolean,
       dryRun: Boolean,
       verbose: Boolean,
+      toContextPath: Option[Path],
+      link: Boolean,
   )
 
   val saveOpts: Opts[SaveOpts] =
-    val contextNameOpts = Opts.argument[String](metavar = "context-name")
+    val contextNameOpts = Opts.argument[String](metavar = "context-name").validate("Invalid context name") { name =>
+      name.matches("^[a-zA-Z0-9_.-]+$") && !name.contains("..")
+    }
     val artifactsOpt = Opts
       .option[String](
         long = "artifacts",
@@ -42,5 +47,16 @@ object SaveCommand:
     val forceOpt   = Opts.flag(long = "force", help = "Force overwrite of existing fctx definition.").orFalse
     val dryRunOpt  = Opts.flag(long = "dry-run", help = "Show what would be done without actually doing it.").orFalse
     val verboseOpt = Opts.flag(long = "verbose", short = "v", help = "Enable verbose output.").orFalse
+    val toOpt = Opts
+      .option[String](
+        long = "to",
+        help = "Save context to a specific path.",
+      )
+      .map(s => os.Path(s, os.pwd))
+      .orNone
+    val linkOpt =
+      Opts.flag(long = "link", help = "Replace original files with symlinks to the saved artifacts.").orFalse
 
-    (contextNameOpts, artifactsOpt, includesOpt, swapAsOpt, forceOpt, dryRunOpt, verboseOpt).mapN(SaveOpts.apply)
+    (contextNameOpts, artifactsOpt, includesOpt, swapAsOpt, forceOpt, dryRunOpt, verboseOpt, toOpt, linkOpt).mapN(
+      SaveOpts.apply,
+    )

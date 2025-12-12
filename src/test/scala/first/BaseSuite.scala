@@ -15,5 +15,20 @@ abstract class BaseSuite extends FunSuite:
         formatter = testFormatter,
         minimumLevel = Some(Level.Debug),
       )
+      .withHandler(
+        formatter = Logging.fileFormatter,
+        minimumLevel = Some(Level.Debug),
+        writer = Logging.createFileWriter(),
+        outputFormat = scribe.output.format.ASCIIOutputFormat,
+      )
       .replace()
     super.beforeAll()
+
+  // Logging hooks for easier debugging of test output in CI/log files
+  override def beforeEach(context: BeforeEach): Unit =
+    scribe.debug(s"Starting test: ${context.test.name}")
+    super.beforeEach(context)
+
+  override def afterEach(context: AfterEach): Unit =
+    scribe.debug(s"Finished test: ${context.test.name}")
+    super.afterEach(context)

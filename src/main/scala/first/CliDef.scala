@@ -1,6 +1,7 @@
 package first
 
 import first.cli.LoadCommand
+import first.cli.MvCommand
 import first.cli.SaveCommand
 import first.cli.SwapCommand
 import first.cli.UpdateCommand
@@ -14,6 +15,7 @@ object CliDef:
   case class LoadCmd(opts: LoadCommand.LoadOpts)       extends CliCommand
   case class UpdateCmd(opts: UpdateCommand.UpdateOpts) extends CliCommand
   case class SwapCmd(opts: SwapCommand.SwapOpts)       extends CliCommand
+  case class MvCmd(opts: MvCommand.MvOpts)             extends CliCommand
   case object LsCmd                                    extends CliCommand
   case object HelpCmd                                  extends CliCommand
 
@@ -30,11 +32,15 @@ object CliDef:
     .subcommand("swap", "Swap from the currently active fctx to a new one.")(SwapCommand.swapOpts)
     .map(SwapCmd.apply)
 
+  val mvCmd: Opts[MvCmd] =
+    Opts.subcommand("mv", "Move a context to a new location.")(MvCommand.mvOpts).map(MvCmd.apply)
+
   val lsCmd: Opts[LsCmd.type] = Opts.subcommand("ls", "List all available contexts.")(Opts.unit.map(_ => LsCmd))
 
   val helpCmd: Opts[HelpCmd.type] = Opts.subcommand("help", "Display help information.")(Opts.unit.map(_ => HelpCmd))
 
-  val subcommands: Opts[CliCommand] = saveCmd orElse updateCmd orElse loadCmd orElse swapCmd orElse lsCmd orElse helpCmd
+  val subcommands: Opts[CliCommand] =
+    saveCmd orElse updateCmd orElse loadCmd orElse swapCmd orElse mvCmd orElse lsCmd orElse helpCmd
 
   val atOpt: Opts[Option[String]] = Opts.option[String]("at", "Specify the working directory.").orNone
 
