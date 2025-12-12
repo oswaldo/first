@@ -116,10 +116,11 @@ diverge a bit as we progress but just to have a main idea):
 6. [x] We can swap between fctxs using the swap cli action
 7. [x] We can use remote artifacts and contexts (http/https/gh)
 8. [x] We can install the tool easily with `curl -fsSL https://raw.githubusercontent.com/oswaldo/first/main/install.sh | sh`
-9. We can migrate and link contexts using `save --to` and `save --link`, and move them with `mv`
-10. We can dogfood the tool for its own development
-11. We can safely manage and remove fctxs using the new cleanup actions (`rm-def`, `rm-files`, `rm-all`).
-12. We can perform all supported cli actions using a terminal interactive screen / mode
+9. [x] We can update existing fctx definitions using the update cli action
+10. We can migrate and link contexts using `save --to` and `save --link`, and move them with `mv`
+11. We can dogfood the tool for its own development
+12. We can safely manage and remove fctxs using the new cleanup actions (`rm-def`, `rm-files`, `rm-all`).
+13. We can perform all supported cli actions using a terminal interactive screen / mode
 
 ## Future Ideas
 

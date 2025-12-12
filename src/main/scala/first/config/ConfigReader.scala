@@ -16,7 +16,7 @@ import org.ekrich.config.Config
 import org.ekrich.config.ConfigFactory
 import os.*
 
-class ConfigReader(downloader: DownloaderClient = Downloader):
+class ConfigReader(downloader: DownloaderClient = Downloader, val userHome: Path = os.home):
 
   private def parseConfigFile(path: Path): Either[ConfigError, Config] =
     scribe.debug(s"Parsing config file: $path")
@@ -231,12 +231,22 @@ class ConfigReader(downloader: DownloaderClient = Downloader):
 
     val pathsFromRoot = loop(Some(startPath), Nil)
 
-    val userHome         = os.home
     val userHomeFctxPath = userHome / ".first" / contextName / "fctx-def.conf"
+    val globalConfig     = new GlobalConfig(userHome)
+
+    val globalPaths = globalConfig
+      .listContextPaths()
+      .getOrElse(Nil)
+      .filter { p =>
+        if os.exists(p) then
+          Try(ConfigFactory.parseFile(p.toIO))
+            .map(c => c.hasPath("name") && c.getString("name") == contextName)
+            .getOrElse(false)
+        else false
+      }
 
     val allPaths =
-      if os.exists(userHomeFctxPath) then userHomeFctxPath :: pathsFromRoot
-      else pathsFromRoot
+      (if os.exists(userHomeFctxPath) then userHomeFctxPath :: pathsFromRoot else pathsFromRoot) ++ globalPaths
 
     scribe.debug(s"Discovered paths for context '$contextName' from '$startPath': $allPaths")
     allPaths.distinct
@@ -265,7 +275,6 @@ class ConfigReader(downloader: DownloaderClient = Downloader):
 
     val contextsFromRoot = discoverContextsIn(Some(startPath), Map.empty)
 
-    val userHome         = os.home
     val userHomeFirstDir = userHome / ".first"
     val userHomeContexts =
       if os.isDir(userHomeFirstDir) then
@@ -279,4 +288,92 @@ class ConfigReader(downloader: DownloaderClient = Downloader):
       acc.updated(ctx, acc.getOrElse(ctx, Nil) ++ paths)
     }
 
-    allContexts.map { case (ctx, paths) => ctx -> paths.filter(os.exists(_)) }.filter(_._2.nonEmpty)
+    val globalConfig = new GlobalConfig(userHome)
+    val globalContexts = globalConfig
+      .listContextPaths()
+      .getOrElse(Nil)
+      .filter(os.exists)
+      .flatMap { path =>
+        scribe.debug(s"Checking path for global context: $path")
+        Try(ConfigFactory.parseFile(path.toIO))
+          .map { config =>
+            if config.hasPath("name") then
+              val name = config.getString("name")
+              scribe.debug(s"Found global context '$name' at $path")
+              Some(name -> path)
+            else
+              scribe.debug(s"No 'name' found in config at $path")
+              None
+          }
+          .fold(
+            e =>
+              scribe.debug(s"Failed to parse global context config at $path: ${e.getMessage}")
+              None
+            ,
+            identity,
+          )
+      }
+      .groupBy(_._1)
+      .map { case (name, pairs) => name -> pairs.map(_._2) }
+
+    val finalContexts = globalContexts.foldLeft(allContexts) { case (acc, (ctx, paths)) =>
+      acc.updated(ctx, acc.getOrElse(ctx, Nil) ++ paths)
+    }
+
+    finalContexts.map { case (ctx, paths) => ctx -> paths.filter(os.exists(_)) }.filter(_._2.nonEmpty)
+
+  def detectContextName(startPath: Path): Option[String] =
+    @tailrec
+    def loop(currentPathOpt: Option[Path]): Option[String] =
+      currentPathOpt match
+        case Some(currentPath) if os.isDir(currentPath) =>
+          val configPath = currentPath / "fctx-def.conf"
+          if os.exists(configPath) then
+            scribe.debug(s"Found config at $configPath")
+            Try(ConfigFactory.parseFile(configPath.toIO))
+              .map(config =>
+                if config.hasPath("name") then
+                  val name = config.getString("name")
+                  scribe.debug(s"Detected context '$name'")
+                  Some(name)
+                else
+                  scribe.debug("No 'name' in config")
+                  None,
+              )
+              .getOrElse(None)
+          else
+            // Also check standard structure .then/<name>/fctx-def.conf if we are at root?
+            // But usually we are inside.
+            // If we are deep inside artifacts/, we walk up.
+            loop(Try(currentPath / os.up).toOption)
+        case _ =>
+          scribe.debug("Reached root, no context found")
+          None
+
+    loop(Some(startPath))
+
+object ConfigReader:
+  def resolveWriteTarget(paths: List[os.Path], workingDir: os.Path): Either[ConfigError, os.Path] =
+    val existingPaths = paths.filter(os.exists)
+    if existingPaths.isEmpty then Left(PathNotFound(s"No valid context paths found from: $paths"))
+    else
+      // 1. Filter checks if workingDir is inside the context's directory (parent of fctx-def.conf)
+      //    This implies the user is "inside" the context scope.
+      //    We search for the "most specific" scope (longest path length).
+      val localMatches = existingPaths
+        .filter(p => workingDir.startsWith(p / os.up))
+        .sortBy(_.segmentCount)
+        .reverse
+
+      localMatches.headOption match
+        case Some(bestMatch) => Right(bestMatch)
+        case None            =>
+          // 2. If no local scope matches, we are outside all contexts.
+          //    We can only proceed if there is exactly one option.
+          if existingPaths.size == 1 then Right(existingPaths.head)
+          else
+            Left(
+              AmbiguousContextError(
+                s"Multiple external contexts found: ${existingPaths.mkString(", ")}. Please navigate inside the desired context directory or use a unique name (if applicable).",
+              ),
+            )
