@@ -73,21 +73,28 @@ by running the specified command for each requirement.
      /speckit.specify Implement context migration and linking capabilities including 'save --to', 'save --link', and 'mv'
      ```
 
-8. [ ] **Dogfooding**
+8. [x] **Version Flag** (DONE)
+   - **Description**: Implement a `--version` flag to display the current version, git commit, and build timestamp.
+   - **Command**:
+     ```
+     /speckit.specify Implement the --version flag so in the next release we can properly check the installed version
+     ```
+
+9. [ ] **Dogfooding**
    - **Description**: Move gemini, spec kit and "pm" files like this one to a separate repository and use `first` to take the fctx from the main branch there and apply to the project here so those things can finally have their own independent lifecycle.
    - **Status**: "External Artifacts" feature implemented in `save` command allows absolute paths, enabling this workflow.
    - **Command**:
      ```
      /speckit.specify Define the workflow for dogfooding 'first' to manage its own development environment from a separate repository
      ```
-9. [ ] **MVP gh-pages**
-   - **Description**: Add gh-pages branch for a simple and elegant static page. Should research what is the current best practice
-   - **Command**:
-     ```
-     /speckit.specify Establish a 'gh-pages' branch for a simple project website
-     ```
+10. [ ] **MVP gh-pages**
+    - **Description**: Add gh-pages branch for a simple and elegant static page. Should research what is the current best practice
+    - **Command**:
+      ```
+      /speckit.specify Establish a 'gh-pages' branch for a simple project website
+      ```
 
-10. [ ] **Transactional File Operations**
+11. [ ] **Transactional File Operations**
     - **Description**: Specify a transactional approach for all file system operations (`load`, `swap`, `rm*`, etc.).
       Actions should be atomic, ensuring that an interrupted operation can be safely rolled back to leave the project in
       a clean, consistent state.
@@ -96,7 +103,7 @@ by running the specified command for each requirement.
       /speckit.specify Define a transactional mechanism for file system modifications
       ```
 
-11. [ ] **Destructive Context Cleanup Actions**
+12. [ ] **Destructive Context Cleanup Actions**
     - **Description**: Implement the destructive cleanup commands (`rm-def`, `rm-files`, `rm-all`) as defined in the use
       cases. This includes adding safety features like confirmation prompts and `--force` flags.
     - **Command**:
@@ -104,7 +111,7 @@ by running the specified command for each requirement.
       /speckit.specify Implement destructive context cleanup actions 'rm-def', 'rm-files', and 'rm-all'
       ```
 
-12. [ ] **Advanced Configuration and Security**
+13. [ ] **Advanced Configuration and Security**
     - **Description**: Enhance the configuration system with advanced security and scope-control features, including
       symlink handling (`--symlinks` flag) and configuration discovery limits (`--parent-limit`).
     - **Command**:
@@ -112,7 +119,7 @@ by running the specified command for each requirement.
       /speckit.specify Implement advanced configuration for security and scope control
       ```
 
-13. [ ] **Interactive TUI Mode**
+14. [ ] **Interactive TUI Mode**
     - **Description**: Create an interactive terminal UI that allows users to select and execute actions without using
       command-line arguments, building on top of the already specified actions.
     - **Command**:
@@ -124,6 +131,7 @@ by running the specified command for each requirement.
 
 These are placeholders for future features that need further design and exploration:
 
+- **Agent Friendly**: Make `first` work well in an agent environment, with workflows and/or MCP implementation optimizing it's use by agents.
 - **Pluggable Sources and Targets**: Extend support for context sources and targets beyond local disk and HTTP/HTTPS. Ideas include:
   - Loading contexts from inside ZIP files.
   - Applying contexts to FTP servers.

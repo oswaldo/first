@@ -7,12 +7,12 @@
 
 //> using dependency com.github.lolgab::scala-native-crypto::0.2.1
 //> using dependency com.lihaoyi::os-lib::0.11.6
-//> using dependency com.lihaoyi::upickle::4.4.1
+//> using dependency com.lihaoyi::upickle::4.4.2
 //> using dependency com.monovore::decline::2.5.0
 //> using dependency com.outr::scribe-file::3.17.0
 //> using dependency com.outr::scribe::3.17.0
 //> using dependency com.softwaremill.sttp.client4::core::4.0.13
-//> using dependency org.ekrich::sconfig::1.12.3
+//> using dependency org.ekrich::sconfig::1.12.4
 //> using dependency org.scalameta::munit::1.2.1
 
 //> using buildInfo
