@@ -51,7 +51,7 @@ by running the specified command for each requirement.
      /speckit.specify Enable installation via coursier so users can run 'cs install first'
      ```
 
-6. [x] **Context Update Operations**
+6. [x] **Context Update Operations** (DONE)
    - **Description**: Implement an `update` command to modify existing fctx definitions without recreating them. This should support:
      - `first update [context-name]` - Update the current (or specified) context with changes to tracked artifacts
      - `first update [context-name] --add "new-file.txt,another-dir/"` - Add new artifacts to the context
@@ -63,7 +63,7 @@ by running the specified command for each requirement.
      /speckit.specify Implement 'update' command to modify existing fctx definitions, supporting add/forget operations and defaulting to the current context
      ```
 
-7. [ ] **Context Migration & Linking**
+7. [x] **Context Migration & Linking** (DONE)
    - **Description**: Implement features to support moving contexts and linking artifacts:
      - `save --to <path>`: Save context to a specific target location (e.g., a separate repo).
      - `save --link`: Replace original artifacts with symlinks to the saved context artifacts.
