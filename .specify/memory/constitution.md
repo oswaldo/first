@@ -1,10 +1,10 @@
 <!--
-- Version: 1.7.0 -> 1.8.0
-- Modified Principles: None
+- Version: 1.8.0 -> 1.9.0
+- Modified Principles: Development Workflow (Clarified Commit Policy)
 - Added Principles:
-  - Reuse First Architecture
+  - Agile Dependency Management
 - Removed Principles: None
-- Templates Requiring Updates: .specify/templates/plan-template.md (Checklist)
+- Templates Requiring Updates: None
 - Follow-up TODOs: None
 -->
 
@@ -47,7 +47,14 @@ Code must be written to be readable and accessible, avoiding pitfalls like `null
 - **Expressive Logic**: Prefer properly named functions and pattern matching (`match`) or monadic chains (`map`, `flatMap`) over excessive nesting of `if/else` blocks.
 - **No Var**: Do not use `var`. Design algorithms so intermediate invalid or inconsistent values are not possible. Avoid `java.util.concurrent.atomic` unless absolutely necessary.
 
-### VIII. Reuse First Architecture
+### VIII. Agile Dependency Management
+
+Dependencies should be selected with care but kept fresh. We prefer a "Selective but Fresh" approach:
+
+- **Selective**: Only add dependencies when they provide significant value over the standard library or simple custom implementations.
+- **Fresh**: When a dependency is accepted, it must be kept up-to-date with its latest stable version to ensure security, performance, and access to the latest features.
+
+### IX. Reuse First Architecture
 
 Before implementing new features, developers MUST analyze existing code for reusable components. If a new feature involves operations similar to existing ones (e.g., file persistence, configuration loading), existing stable implementations MUST be inspected for reuse. Common logic SHOULD be extracted into shared core components to avoid duplication and leverage proven stability.
 
@@ -59,6 +66,9 @@ Before implementing new features, developers MUST analyze existing code for reus
 ## Development Workflow
 
 - **Atomic Features**: Each feature should be developed on a dedicated branch and result in a single, comprehensive commit upon completion.
+- **Clean Git History**:
+  - **Active Development**: During the implementation of a feature (before merge), developers should amend the existing feature commit rather than creating new "fix" commits. This ensures that the final feature commit is a clean, self-contained unit of work.
+  - **Post-Merge**: "Fix" commits are reserved for addressing regressions or bugs discovered after a feature has been merged or released.
 - **Linear History**: To maintain a clean and readable revision history, feature branches MUST be rebased onto the main branch before merging. Merge commits are to be avoided in favor of fast-forward merges.
 - **Roadmap Tracking**: After a feature branch is merged, the `SPEC-ROADMAP.md` file must be updated to mark the corresponding feature as complete.
 - **Specification Gating**: Before implementation can begin, the feature's `requirements.md` checklist MUST be reviewed and marked as complete. This serves as the formal quality gate after the clarification step.
@@ -74,4 +84,4 @@ This constitution is the supreme governing document for the `first` project. All
 
 All pull requests and code reviews must include a check for compliance with this constitution. Any deviation from these principles must be explicitly justified and approved.
 
-**Version**: 1.8.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-12-09
+**Version**: 1.9.0 | **Ratified**: 2025-10-30 | **Last Amended**: 2025-12-31
