@@ -6,6 +6,9 @@ on:
       version:
         description: "Release version (e.g. v1.0.0). Leave empty to auto-increment minor version."
         required: false
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
@@ -15,63 +18,78 @@ jobs:
     name: Prepare Release
     runs-on: ubuntu-latest
     outputs:
-      release_version: ${{ steps.create_tag.outputs.version }}
+      release_version: ${{ steps.determine_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create Tag and Release
-        id: create_tag
+      - name: Determine Version and Tag
+        id: determine_version
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INPUT_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # Find previous official version tag (ignoring nightly/snapshots)
-          PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")
-          echo "Previous Official Tag: '$PREV_TAG'"
-
-          if [ -n "$INPUT_VERSION" ]; then
-            VERSION="$INPUT_VERSION"
+          if [ "$EVENT_NAME" == "push" ]; then
+            # Triggered by tag push
+            VERSION="$REF_NAME"
+            echo "Triggered by tag push: $VERSION"
           else
-            if [ -z "$PREV_TAG" ]; then
-              VERSION="v0.1.0"
+            # Manual trigger
+            # Find previous official version tag (ignoring nightly/snapshots)
+            PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")
+            echo "Previous Official Tag: '$PREV_TAG'"
+
+            if [ -n "$INPUT_VERSION" ]; then
+              VERSION="$INPUT_VERSION"
             else
-              # Remove 'v' prefix
-              clean_ver=${PREV_TAG#v}
-              # Split by dot
-              IFS='.' read -r major minor patch <<< "$clean_ver"
-              
-              if [ -z "$major" ] || [ -z "$minor" ]; then
-                 echo "Error: Could not parse previous version '$PREV_TAG'. Please provide manual version."
-                 exit 1
+              if [ -z "$PREV_TAG" ]; then
+                VERSION="v0.1.0"
+              else
+                # Remove 'v' prefix
+                clean_ver=${PREV_TAG#v}
+                # Split by dot
+                IFS='.' read -r major minor patch <<< "$clean_ver"
+                
+                if [ -z "$major" ] || [ -z "$minor" ]; then
+                   echo "Error: Could not parse previous version '$PREV_TAG'. Please provide manual version."
+                   exit 1
+                fi
+                
+                new_minor=$((minor + 1))
+                VERSION="v$major.$new_minor.0"
               fi
-              
-              new_minor=$((minor + 1))
-              VERSION="v$major.$new_minor.0"
+              echo "Auto-incremented version to: $VERSION"
             fi
-            echo "Auto-incremented version to: $VERSION"
+            
+            # Create and push new tag for manual releases
+            git tag $VERSION
+            git push origin $VERSION
           fi
 
           # Output version for next job
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-          # Create and push new tag
-          git tag $VERSION
-          git push origin $VERSION
-
           # Construct arguments for release creation
           NOTES_ARGS="--generate-notes"
-          if [ ! -z "$PREV_TAG" ]; then
-            NOTES_ARGS="$NOTES_ARGS --notes-start-tag $PREV_TAG"
+          # Only use start tag for notes if we can determine a previous tag
+          PREV_TAG_FOR_NOTES=$(git describe --tags --abbrev=0 --match "v*" "$VERSION^" 2>/dev/null || echo "")
+          if [ ! -z "$PREV_TAG_FOR_NOTES" ]; then
+             NOTES_ARGS="$NOTES_ARGS --notes-start-tag $PREV_TAG_FOR_NOTES"
+          elif [ "$EVENT_NAME" == "workflow_dispatch" ] && [ ! -z "$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")" ]; then
+             # Fallback for manual trigger if previous logic found one
+             NOTES_ARGS="$NOTES_ARGS --notes-start-tag $(git describe --tags --abbrev=0 --match "v*" 2>/dev/null)"
           fi
 
-          # Create GitHub Release
-          gh release create $VERSION $NOTES_ARGS --title "$VERSION" --verify-tag
+          # Create GitHub Release (idempotent if already exists, but useful to ensure release object exists)
+          # Use || true to prevent failure if release already exists (for tag pushes that might have manual releases associated)
+          gh release create $VERSION $NOTES_ARGS --title "$VERSION" --verify-tag || echo "Release might already exist"
 
   build-and-release:
     name: Build and Release
