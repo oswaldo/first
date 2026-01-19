@@ -22,7 +22,8 @@ Specifies the files and directories to include in the context.
 
 Specifies the target location for the `.fctx` file.
 
-- **Migration Mode**: When combined with `--artifacts` and `--to`, `first` acts like a "smart move" tool. It effectively moves the specified artifacts to the target location's directory structure and updates the context file.
+> [!NOTE]
+> **Migration Mode**: When combined with `--artifacts` and `--to`, `first` acts like a "smart move" tool. It effectively moves the specified artifacts to the target location's directory structure and updates the context file.
 
 ### `--link`
 

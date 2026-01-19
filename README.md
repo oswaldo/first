@@ -37,7 +37,6 @@ first swap claude-config
 - **[Command Reference](./docs/reference/README.md)**
 - **[Architecture](./docs/concepts/architecture.md)**
 - **[Guides](./docs/guides/README.md)** (Remote contexts, Dogfooding, etc.)
-- [`first.md`](first.md) - Project origin story (Historical)
 - [`SPEC-ROADMAP.md`](SPEC-ROADMAP.md) - Feature roadmap and development plan
 
 ## Features

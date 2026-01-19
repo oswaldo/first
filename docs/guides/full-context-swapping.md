@@ -20,6 +20,29 @@ These files effectively "leak" the developer's personal or temporary tool choice
 
 ### How it works
 
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant Repo as Project Repo
+    participant First as first CLI
+    participant Store as Context Store (~/.first)
+
+    Note over Repo: Clean State (Source Code Only)
+
+    Dev->>First: load gemini-config
+    First->>Store: Fetch artifacts (.gemini/)
+    Store->>Repo: Symlink/Copy .gemini/
+    Note over Repo: Dev State (Code + AI Tools)
+
+    Dev->>Repo: Working...
+
+    Dev->>First: swap claude-config
+    First->>Repo: Remove .gemini/
+    First->>Store: Fetch artifacts (.claude/)
+    Store->>Repo: Symlink/Copy .claude/
+    Note over Repo: New Dev State (Code + Claude)
+```
+
 1.  **Save**: You define a context (e.g., `gemini-config`) that includes specific artifacts.
 2.  **Swap**: When you load this context, `first` brings those artifacts into your workspace.
 3.  **Clean**: When you're done, or swap to another context, `first` can remove the traces (feature in development) or simply lets you swap to a "clean" context.
