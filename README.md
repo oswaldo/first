@@ -1,4 +1,6 @@
-# first
+<p align="center">
+  <img src="images/first.png" alt="first logo" width="150"/>
+</p>
 
 [![Website](https://img.shields.io/badge/website-live-brightgreen)](https://oswaldo.github.io/first/)
 
