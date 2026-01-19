@@ -21,6 +21,8 @@ test.log
 all_tests.log
 test_results.log
 .scala-build/
+.first/
+.then/
 
 # First Tool Context (Dogfooding)
 .specify
