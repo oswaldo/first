@@ -33,8 +33,8 @@ flowchart LR
     subgraph "first load gh://..."
     direction TB
     Remote -- "Download<br/>(Content Hash)" --> Cache
-    Cache -- "1. Check Existence" --> Cache
-    Cache -- "2. Copy/Link" --> Workspace
+    Cache -- "1: Check Existence" --> Cache
+    Cache -- "2: Copy/Link" --> Workspace
     end
 
     style Remote fill:#ffdfba,stroke:#333,stroke-width:2px,color:#000

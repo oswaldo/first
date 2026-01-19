@@ -23,10 +23,6 @@ Traditional JVM-based CLI tools suffer from "warm-up" latency. By compiling to n
 
 ## Architectural Concepts
 
-### The "Cogsim" (Cognition Simulation)
-
-The core abstraction in `first` is the Context (or "cogsim"). A Context is a self-contained definition of a development environment state. It allows switching "brains" (AI configs) as easily as switching git branches.
-
 ### Content-Addressable Storage
 
 `first` caches remote artifacts in `~/.first/cache/`. We use a content-addressable strategy (hashing contents) to:
