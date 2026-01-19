@@ -104,7 +104,7 @@ jobs:
             install_deps: |
               sudo apt-get update
               sudo apt-get install -y libidn2-dev libcurl4-openssl-dev libssl-dev clang
-          - os: macos-13 # Intel Mac
+          - os: macos-15 # Intel Mac
             target: macos-x86_64
             asset_name: first-macos-x86_64
             install_deps: |
