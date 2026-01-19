@@ -92,7 +92,7 @@ jobs:
           gh release create $VERSION $NOTES_ARGS --title "$VERSION" --verify-tag || echo "Release might already exist"
 
   build-and-release:
-    name: Build and Release
+    name: Release ${{ matrix.target }}
     needs: prepare-release
     runs-on: ${{ matrix.os }}
     strategy:

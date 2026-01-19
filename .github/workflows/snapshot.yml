@@ -33,7 +33,7 @@ jobs:
           git push origin nightly -f
 
   build-and-release:
-    name: Build and Release
+    name: Build ${{ matrix.target }}
     needs: update-tag
     runs-on: ${{ matrix.os }}
     strategy:
