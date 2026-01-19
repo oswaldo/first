@@ -41,6 +41,14 @@ Think of it like a painter trying a new brush—they don't redesign their studio
 
 Read the full philosophy and origin story in [`first.md`](first.md).
 
+## 🏆 Dogfooding Milestone
+
+**We practice what we preach.**
+
+As of v0.4.0, `first` is fully "dogfooding" itself. This repository does **not** contain the project's own development tools (Spec Kit, AI contexts, project roadmaps).
+
+Instead, they are managed in a separate repository (`first-fctx`) and loaded dynamically using `first load`. This proves that `first` is capable of handling complex, real-world development environments—decoupling the toolchain from the source code—even before reaching version 1.0.
+
 ## Quick Start
 
 ### Installation
