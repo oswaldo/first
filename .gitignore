@@ -1,39 +1,31 @@
-# Scala
-*.class
-*.log
-
-# sbt
-lib_managed/
-project/boot/
-project/plugins/project/
-target/
-tmp/
 
 # Bloop
 .bloop/
+.bsp/
 
 # Metals
 .metals/
+metals.sbt
+
+# VS Code
 .vscode/
 
-# IntelliJ
+# Project Specific
 .idea/
-*.iml
-*.ipr
-
-# OS-specific
-.DS_Store
+target/
+tmp/
+.ds_store
 Thumbs.db
-
-.bsp/
-
+first
+test.log
+all_tests.log
+test_results.log
 .scala-build/
-.first/
-.then/
 
-# Build artifacts
-first-linux-x86_64
-
-scoverage.coverage
-scoverage.measurements.*
-*.semanticdb
+# First Tool Context (Dogfooding)
+.specify
+.gemini
+GEMINI.md
+ROADMAP.md
+SPEC-ROADMAP.md
+usecases.md
